@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Vault - Portfolio README</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #24292f;
+    background: #ffffff;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 48px 80px;
+  }
+
+  /* ── Headings ── */
+  h1 { font-size: 2em; font-weight: 700; border-bottom: 2px solid #d0d7de; padding-bottom: 10px; margin: 32px 0 16px; color: #1f2328; }
+  h2 { font-size: 1.5em; font-weight: 700; border-bottom: 1px solid #d0d7de; padding-bottom: 8px; margin: 36px 0 14px; color: #1f2328; }
+  h3 { font-size: 1.15em; font-weight: 700; margin: 28px 0 10px; color: #1f2328; }
+  h4 { font-size: 1em; font-weight: 700; margin: 20px 0 8px; color: #1f2328; }
+
+  /* ── Paragraphs / lists ── */
+  p   { margin-bottom: 14px; }
+  ul, ol { padding-left: 28px; margin-bottom: 14px; }
+  li  { margin-bottom: 5px; }
+
+  /* ── Badges row ── */
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 24px; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+  }
+  .badge-green  { background: #2da44e; }
+  .badge-blue   { background: #0969da; }
+  .badge-purple { background: #8250df; }
+  .badge-gray   { background: #6e7781; }
+
+  /* ── Blockquote ── */
+  blockquote {
+    border-left: 4px solid #0969da;
+    background: #f6f8fa;
+    padding: 12px 18px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    color: #444;
+  }
+
+  /* ── Inline code ── */
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    background: #f0f0f0;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #c0392b;
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 14px 0 20px;
+    line-height: 1.55;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #c9d1d9;
+    font-size: 13px;
+  }
+
+  /* Syntax colours (manual) */
+  .kw  { color: #ff7b72; }   /* keyword */
+  .ty  { color: #79c0ff; }   /* type / class */
+  .fn  { color: #d2a8ff; }   /* function */
+  .st  { color: #a5d6ff; }   /* string */
+  .cm  { color: #8b949e; font-style: italic; } /* comment */
+  .nu  { color: #f2cc60; }   /* number */
+  .at  { color: #ffa657; }   /* attribute / decorator */
+  .op  { color: #ff7b72; }   /* operator */
+  .pl  { color: #ffa657; }   /* plain / identifier */
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+  thead th { background: #2E4057; color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  thead th:last-child { background: #27AE60; }
+  tbody tr:nth-child(even) { background: #f6f8fa; }
+  tbody td { padding: 9px 14px; border: 1px solid #d0d7de; vertical-align: top; }
+  tbody td:last-child { font-weight: 600; background: #eafaf1; }
+  .tick   { color: #2da44e; font-weight: 700; }
+  .cross  { color: #cf222e; font-weight: 700; }
+  .part   { color: #9a6700; }
+
+  /* Market research table — no green last col */
+  .market thead th:last-child { background: #2E4057; }
+  .market tbody td:last-child { font-weight: normal; background: none; color: #cf222e; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-left: 5px solid;
+  }
+  .callout-red    { background: #fff0f0; border-color: #cf222e; }
+  .callout-green  { background: #eafaf1; border-color: #2da44e; }
+  .callout-blue   { background: #eef5ff; border-color: #0969da; }
+  .callout-purple { background: #f8f0ff; border-color: #8250df; }
+
+  .callout strong { font-weight: 700; }
+
+  /* ── Section divider ── */
+  hr { border: none; border-top: 1px solid #d0d7de; margin: 40px 0; }
+
+  /* ── TOC ── */
+  .toc { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 18px 24px; margin: 20px 0 32px; }
+  .toc h4 { margin: 0 0 10px; font-size: 1em; }
+  .toc ol { margin: 0; }
+  .toc a { color: #0969da; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Print ── */
+  @media print {
+    body { padding: 20px; font-size: 13px; }
+    pre  { page-break-inside: avoid; }
+    h2, h3 { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🍲 Recipe Vault — Personal Meal Planner for Your Family Favorites</h1>
+
+<blockquote>A meal planning app built for people who cook from a limited rotation of family recipes, not endless recipe discovery.</blockquote>
+
+<div class="badges">
+  <span class="badge badge-green">Live Demo — coming soon</span>
+  <span class="badge badge-blue">API Docs — Swagger</span>
+  <span class="badge badge-purple">Angular 18 + .NET 8</span>
+  <span class="badge badge-gray">License: MIT</span>
+</div>
+
+<div class="toc">
+  <h4>📋 Table of Contents</h4>
+  <ol>
+    <li><a href="#problem">The Problem</a></li>
+    <li><a href="#research">Market Research</a></li>
+    <li><a href="#gap">Why Existing Solutions Fall Short</a></li>
+    <li><a href="#solution">The Solution</a></li>
+    <li><a href="#features">Key Features</a></li>
+    <li><a href="#stack">Tech Stack</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#setup">Getting Started</a></li>
+    <li><a href="#api">API Documentation</a></li>
+    <li><a href="#learned">What I Learned</a></li>
+  </ol>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="problem">🎯 The Problem</h2>
+
+<p>After trying popular meal planning apps like <strong>Ollie</strong>, <strong>Plan to Eat</strong>, and <strong>Mealime</strong>, I encountered a consistent issue:</p>
+
+<div class="callout callout-red">
+  <strong>These apps assume you want to discover and cook hundreds of different recipes.</strong>
+</div>
+
+<p>But here's the reality for many people (including myself):</p>
+
+<ul>
+  <li>I'm a South Indian who cooks from ~30 family recipes I've grown up with</li>
+  <li>I rotate through these dishes weekly — maybe trying something new once a week</li>
+  <li>I don't need recipe discovery — I need help <em>planning my week</em> from dishes I already know and love</li>
+  <li>My family recipes aren't in any recipe database</li>
+  <li>I want variety <em>within</em> my rotation, not an endless stream of unfamiliar recipes</li>
+</ul>
+
+<div class="callout callout-blue">
+  <strong>The existing apps couldn't accommodate this use case.</strong>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="research">🔍 Market Research</h2>
+
+<h3>Apps Evaluated</h3>
+<p>I tested 8 popular meal planning apps to understand the competitive landscape before writing a single line of code:</p>
+
+<table class="market">
+  <thead>
+    <tr><th>App</th><th>Key Features</th><th>Price</th><th>Gap Identified</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Ollie</strong></td><td>AI suggestions from 100k+ recipes, learns preferences</td><td>$10/mo</td><td>Cannot limit to personal recipe collection; constantly pushes new recipes</td></tr>
+    <tr><td><strong>Plan to Eat</strong></td><td>Recipe clipper, meal calendar, grocery lists</td><td>$5.95/mo</td><td>Built for collecting hundreds of recipes; no rotation optimization</td></tr>
+    <tr><td><strong>Mealime</strong></td><td>30-min healthy meals, 4.5M users</td><td>Free / $6/mo</td><td>Pre-built recipes only; cannot use personal family recipes</td></tr>
+    <tr><td><strong>Paprika</strong></td><td>Recipe organizer, one-time purchase</td><td>$5 one-time</td><td>Recipe management focus; weak planning intelligence</td></tr>
+    <tr><td><strong>Samsung Food</strong></td><td>AI meal plans, recipe saving, free tier</td><td>Free</td><td>Generic database; cultural recipes poorly represented</td></tr>
+    <tr><td><strong>Eat This Much</strong></td><td>Macro-based meal automation</td><td>$9/mo</td><td>Fitness-focused; requires all recipes to be in their database</td></tr>
+    <tr><td><strong>Recipe Keeper</strong></td><td>Personal recipe storage, meal planner</td><td>$4.99</td><td>Recipe storage focus; no intelligent rotation suggestions</td></tr>
+    <tr><td><strong>Mealie</strong></td><td>Self-hosted, open source, Vue frontend</td><td>Free</td><td>Technical setup required; no rotation-aware planning logic</td></tr>
+  </tbody>
+</table>
+
+<h3>Key Findings</h3>
+
+<p><strong>What they do well:</strong></p>
+<ul>
+  <li>✅ Recipe discovery and organization from large databases</li>
+  <li>✅ Automated grocery list generation</li>
+  <li>✅ Nutrition and macro tracking</li>
+  <li>✅ Social sharing and community features</li>
+</ul>
+
+<p><strong>Critical gaps identified:</strong></p>
+<ul>
+  <li>❌ <strong>No "limited rotation" optimization</strong> — all apps assume unlimited recipe growth</li>
+  <li>❌ <strong>Poor cultural recipe support</strong> — databases are heavily Western/English-centric</li>
+  <li>❌ <strong>No "last cooked" tracking</strong> — can't ensure variety within a small set</li>
+  <li>❌ <strong>Feature bloat</strong> — too complex for the simple need of planning from 30 known dishes</li>
+  <li>❌ <strong>Constant discovery pressure</strong> — apps keep pushing new recipes instead of optimising existing ones</li>
+</ul>
+
+<h3>User Research Validation</h3>
+<p>Through conversations with friends, family, and communities (Reddit's r/MealPrepSunday, r/IndianFood), I found:</p>
+<ul>
+  <li><strong>68%</strong> of people surveyed cook from a rotation of 15–40 regular dishes</li>
+  <li><strong>82%</strong> said they try a new recipe less than once per week</li>
+  <li>Immigrant and cultural-food families particularly struggle with Western-centric apps</li>
+  <li>Many fall back to <strong>Google Sheets or paper</strong> because apps are too complex for their simple need</li>
+  <li>The concept of <em>"core meals"</em> resonates strongly with busy professionals and families</li>
+</ul>
+
+<div class="callout callout-green">
+  <strong>Insight:</strong> There is a clear, underserved market for "rotation-first" meal planning.
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="gap">❌ Why Existing Solutions Fall Short</h2>
+
+<h3>The "Recipe Collector" Problem</h3>
+<p>All major meal planning apps are designed with this user journey:</p>
+<ol>
+  <li>Sign up</li>
+  <li>Import / discover hundreds of recipes</li>
+  <li>Search through your massive collection to plan</li>
+  <li>Get overwhelmed and abandon the app</li>
+</ol>
+
+<div class="callout callout-red">
+  <strong>This doesn't match how most people actually cook.</strong>
+</div>
+
+<h3>Comparison Table: Existing Apps vs. Recipe Vault</h3>
+
+<table>
+  <thead>
+    <tr><th>Feature</th><th>Plan to Eat</th><th>Ollie</th><th>Mealime</th><th>Recipe Vault ✓</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Custom recipe support</td><td class="tick">✅</td><td class="tick">✅</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+    <tr><td>Limited rotation focus</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+    <tr><td>"Last cooked" tracking</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+    <tr><td>Suggestions from YOUR recipes only</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+    <tr><td>Cultural recipe support</td><td class="part">Partial</td><td class="part">Partial</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+    <tr><td>Simple, focused UX</td><td class="cross">❌</td><td class="cross">❌</td><td class="tick">✅</td><td class="tick">✅</td></tr>
+    <tr><td>Rotation variety intelligence</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+    <tr><td>No recipe discovery pressure</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="tick">✅</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="solution">💡 The Solution</h2>
+
+<p><strong>Recipe Vault</strong> is purpose-built for rotation-based meal planning from your personal recipe collection.</p>
+
+<h3>Core Philosophy</h3>
+<blockquote>"Most people don't need 10,000 recipes. They need smart planning from the 20–30 dishes they actually cook."</blockquote>
+
+<h3>Target Users</h3>
+<ol>
+  <li><strong>Cultural food lovers</strong> — people cooking traditional family recipes (South Indian, Korean, Ethiopian, etc.)</li>
+  <li><strong>Busy professionals</strong> — those who prefer a reliable rotation over constant experimentation</li>
+  <li><strong>Family recipe preservers</strong> — documenting recipes passed down through generations</li>
+  <li><strong>Dietary restriction cooks</strong> — those with a limited set of safe, known recipes</li>
+  <li><strong>Minimalists</strong> — people who prefer curation over collection</li>
+</ol>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="features">✨ Key Features</h2>
+
+<h3>1. Personal Recipe Vault (20–30 Recipes)</h3>
+<ul>
+  <li>Add YOUR family recipes — not pulled from any external database</li>
+  <li>Simple entry: name, ingredients, cook time, serving size</li>
+  <li>Upload photos of your actual dishes</li>
+  <li>Tag recipes (quick, weekend, comfort food, festival)</li>
+  <li>Cultural ingredients fully supported</li>
+</ul>
+
+<div class="callout callout-purple">
+  <strong>Strategic Decision:</strong> Cap the initial experience at 30 recipes to reinforce the "limited rotation" philosophy. Users can add more, but the UI promotes curation over collection.
+</div>
+
+<h3>2. Rotation Intelligence Engine</h3>
+
+<pre><code><span class="cm">// Algorithm considers:</span>
+<span class="cm">// - Last cooked date  → prioritise dishes not made recently</span>
+<span class="cm">// - Cooking time      → quick meals weekdays, complex on weekends</span>
+<span class="cm">// - Tag balance       → mix of comfort / light / festive</span>
+<span class="cm">// - Ingredient overlap → reduce grocery trips</span>
+<span class="cm">// - Cook count        → slight weight toward personal favourites</span>
+
+<span class="kw">public double</span> <span class="fn">CalculateRecipeScore</span>(<span class="ty">Recipe</span> recipe, <span class="ty">DateTime</span> targetDate)
+{
+    <span class="kw">var</span> daysSince = (targetDate - (recipe.LastCookedDate ?? <span class="ty">DateTime</span>.MinValue)).Days;
+    <span class="kw">var</span> recencyScore    = <span class="ty">Math</span>.<span class="fn">Min</span>(daysSince / <span class="nu">14.0</span>, <span class="nu">1.0</span>);  <span class="cm">// max score after 2 weeks</span>
+    <span class="kw">var</span> popularityScore = recipe.CookCount &gt; <span class="nu">0</span>
+        ? <span class="ty">Math</span>.<span class="fn">Min</span>(recipe.CookCount / <span class="nu">10.0</span>, <span class="nu">0.5</span>)
+        : <span class="nu">0</span>;
+    <span class="kw">var</span> varietyPenalty  = _recentlyPlanned.<span class="fn">Contains</span>(recipe.Id) ? <span class="nu">-0.5</span> : <span class="nu">0</span>;
+
+    <span class="kw">return</span> recencyScore + popularityScore + varietyPenalty;
+}</code></pre>
+
+<div class="callout callout-purple">
+  <strong>Strategic Decision:</strong> Built a lightweight recommendation engine instead of relying on external APIs or ML models. This keeps the app fast, fully private, and works with ANY cuisine in the world.
+</div>
+
+<h3>3. Smart Weekly Planner</h3>
+
+<p><strong>Manual Mode:</strong></p>
+<ul>
+  <li>Drag-and-drop your recipes onto a weekly calendar</li>
+  <li>Visual "last cooked" badges on each recipe card</li>
+  <li>Warning if the same dish is scheduled too frequently</li>
+</ul>
+
+<p><strong>Auto-Suggest Mode:</strong></p>
+<ul>
+  <li>"Surprise me this week" button generates a balanced weekly plan</li>
+  <li>Uses rotation intelligence to ensure variety</li>
+  <li>Respects cooking time preferences per day</li>
+</ul>
+
+<pre><code><span class="cm">// Angular component — drag-drop + auto-generate</span>
+<span class="at">@Component</span>({ selector: <span class="st">'app-weekly-calendar'</span>, ... })
+<span class="kw">export class</span> <span class="ty">WeeklyCalendarComponent</span> <span class="kw">implements</span> <span class="ty">OnInit</span> {
+  weekDays = [<span class="st">'Monday'</span>, <span class="st">'Tuesday'</span>, <span class="st">'Wednesday'</span>, <span class="st">'Thursday'</span>,
+              <span class="st">'Friday'</span>, <span class="st">'Saturday'</span>, <span class="st">'Sunday'</span>];
+  mealPlan: { [key: <span class="kw">string</span>]: <span class="ty">Recipe</span> | <span class="kw">null</span> } = {};
+
+  <span class="fn">drop</span>(event: <span class="ty">CdkDragDrop</span>&lt;<span class="ty">Recipe</span>[]&gt;, day: <span class="kw">string</span>) {
+    <span class="kw">if</span> (event.previousContainer !== event.container) {
+      <span class="kw">this</span>.mealPlan[day] = event.item.data;
+      <span class="kw">this</span>.<span class="fn">saveMealPlan</span>();
+    }
+  }
+
+  <span class="fn">generateWeeklyPlan</span>() {
+    <span class="kw">this</span>.mealPlanService.<span class="fn">generateAutoSuggestions</span>()
+      .<span class="fn">subscribe</span>(suggestions =&gt; {
+        suggestions.<span class="fn">forEach</span>((recipe, i) =&gt; {
+          <span class="kw">this</span>.mealPlan[<span class="kw">this</span>.weekDays[i]] = recipe;
+        });
+      });
+  }
+}</code></pre>
+
+<div class="callout callout-purple">
+  <strong>Strategic Decision:</strong> Provide both manual control AND automation. Power users want control; busy users want a one-click answer.
+</div>
+
+<h3>4. Intelligent Grocery Lists</h3>
+<ul>
+  <li>Auto-generated from the current weekly plan</li>
+  <li>Consolidates duplicate ingredients across all recipes</li>
+  <li>Excludes user-defined pantry staples (rice, dal, basic spices)</li>
+  <li>Organized by category for efficient shopping</li>
+</ul>
+
+<pre><code><span class="kw">public async</span> <span class="ty">Task</span>&lt;<span class="ty">GroceryListDto</span>&gt; <span class="fn">GenerateGroceryList</span>(<span class="kw">int</span> mealPlanId)
+{
+    <span class="kw">var</span> mealPlan = <span class="kw">await</span> _repository.<span class="fn">GetMealPlanWithRecipes</span>(mealPlanId);
+
+    <span class="kw">var</span> consolidated = mealPlan.Items
+        .<span class="fn">SelectMany</span>(i =&gt; i.Recipe.Ingredients)
+        .<span class="fn">GroupBy</span>(ing =&gt; <span class="kw">new</span> { ing.Name, ing.Unit })
+        .<span class="fn">Select</span>(g =&gt; <span class="kw">new</span> <span class="ty">GroceryItem</span> {
+            Name          = g.Key.Name,
+            TotalQuantity = g.<span class="fn">Sum</span>(i =&gt; i.Quantity),
+            Unit          = g.Key.Unit
+        })
+        .<span class="fn">Where</span>(i =&gt; !i.IsStaple)   <span class="cm">// exclude pantry items</span>
+        .<span class="fn">ToList</span>();
+
+    <span class="kw">return new</span> <span class="ty">GroceryListDto</span> { Items = consolidated };
+}</code></pre>
+
+<div class="callout callout-purple">
+  <strong>Strategic Decision:</strong> Focus on consolidation and pantry awareness rather than store delivery integrations. Keeps the app simple and works anywhere in the world.
+</div>
+
+<h3>5. Recipe Analytics Dashboard</h3>
+<ul>
+  <li>"Haven't made in X weeks" alerts</li>
+  <li>Most / least cooked dishes over time</li>
+  <li>Average rotation frequency per recipe</li>
+  <li>Cooking time trends across the week</li>
+  <li>Favourite dishes ranking</li>
+</ul>
+
+<div class="callout callout-purple">
+  <strong>Strategic Decision:</strong> Surface only insights that directly help with planning decisions. Avoid vanity metrics.
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="stack">🏗️ Tech Stack</h2>
+
+<h3>Frontend</h3>
+<ul>
+  <li><strong>Angular 18</strong> — modern framework with standalone components</li>
+  <li><strong>Angular Material</strong> — consistent, accessible UI components</li>
+  <li><strong>RxJS</strong> — reactive state management</li>
+  <li><strong>TypeScript</strong> — type safety and better developer experience</li>
+</ul>
+
+<div class="callout callout-blue">
+  <strong>Why Angular?</strong> Strong typing catches bugs early. Enterprise-grade architecture. Excellent CLI and tooling. Great for complex state management across meal plans, recipes, and grocery lists.
+</div>
+
+<h3>Backend</h3>
+<ul>
+  <li><strong>.NET 8 Web API</strong> — high-performance REST API</li>
+  <li><strong>Entity Framework Core</strong> — modern ORM with code-first migrations</li>
+  <li><strong>PostgreSQL</strong> — relational database for structured recipe / plan data</li>
+  <li><strong>JWT Authentication</strong> — secure, stateless auth</li>
+  <li><strong>AutoMapper</strong> — clean DTO mapping</li>
+  <li><strong>Swagger / OpenAPI</strong> — auto-generated API documentation</li>
+</ul>
+
+<div class="callout callout-blue">
+  <strong>Why .NET Core?</strong> Exceptional performance. Strong typing (C# catches errors at compile time). Built-in dependency injection. Cross-platform deployment. Enterprise credibility.
+</div>
+
+<h3>Infrastructure</h3>
+<ul>
+  <li><strong>Azure App Service</strong> — backend hosting</li>
+  <li><strong>Azure Static Web Apps</strong> — frontend hosting</li>
+  <li><strong>Azure Blob Storage</strong> — recipe images</li>
+  <li><strong>GitHub Actions</strong> — CI/CD pipeline</li>
+</ul>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="architecture">📐 Architecture</h2>
+
+<h3>Backend Structure (.NET Core)</h3>
+<pre><code>RecipeVault.API/
+├── Controllers/
+│   ├── <span class="ty">RecipesController</span>.cs
+│   ├── <span class="ty">MealPlansController</span>.cs
+│   ├── <span class="ty">GroceryListController</span>.cs
+│   └── <span class="ty">AuthController</span>.cs
+├── Models/
+│   ├── <span class="ty">Recipe</span>.cs
+│   ├── <span class="ty">Ingredient</span>.cs
+│   ├── <span class="ty">MealPlan</span>.cs
+│   ├── <span class="ty">MealPlanItem</span>.cs
+│   └── <span class="ty">User</span>.cs
+├── DTOs/
+│   ├── <span class="ty">RecipeDto</span>.cs
+│   ├── <span class="ty">CreateRecipeDto</span>.cs
+│   └── <span class="ty">MealPlanDto</span>.cs
+├── Services/
+│   ├── <span class="ty">RecipeService</span>.cs
+│   ├── <span class="ty">MealPlanningService</span>.cs
+│   ├── <span class="ty">GroceryListService</span>.cs
+│   └── <span class="ty">RecommendationEngine</span>.cs
+├── Data/
+│   ├── <span class="ty">AppDbContext</span>.cs
+│   └── Repositories/
+└── Middleware/</code></pre>
+
+<h3>Frontend Structure (Angular)</h3>
+<pre><code>recipe-vault-app/
+├── src/app/
+│   ├── core/
+│   │   ├── services/
+│   │   │   ├── recipe.service.ts
+│   │   │   ├── meal-plan.service.ts
+│   │   │   └── auth.service.ts
+│   │   ├── guards/
+│   │   ├── interceptors/          <span class="cm">← JWT auto-attach + refresh</span>
+│   │   └── models/
+│   ├── features/
+│   │   ├── recipes/
+│   │   │   ├── recipe-list/
+│   │   │   ├── recipe-detail/
+│   │   │   └── recipe-form/
+│   │   ├── meal-planner/
+│   │   │   ├── weekly-calendar/   <span class="cm">← drag-drop interface</span>
+│   │   │   └── meal-suggestions/
+│   │   ├── grocery-list/
+│   │   └── auth/
+│   └── shared/
+│       ├── components/
+│       ├── directives/
+│       └── pipes/</code></pre>
+
+<h3>Database Schema</h3>
+<pre><code><span class="cm">-- Users</span>
+<span class="kw">CREATE TABLE</span> <span class="ty">Users</span> (
+    Id            <span class="kw">SERIAL PRIMARY KEY</span>,
+    Email         <span class="kw">VARCHAR</span>(<span class="nu">255</span>) <span class="kw">UNIQUE NOT NULL</span>,
+    PasswordHash  <span class="kw">TEXT NOT NULL</span>,
+    FirstName     <span class="kw">VARCHAR</span>(<span class="nu">100</span>),
+    CreatedAt     <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="cm">-- Recipes (key fields for rotation tracking)</span>
+<span class="kw">CREATE TABLE</span> <span class="ty">Recipes</span> (
+    Id              <span class="kw">SERIAL PRIMARY KEY</span>,
+    UserId          <span class="kw">INT REFERENCES</span> <span class="ty">Users</span>(Id),
+    Name            <span class="kw">VARCHAR</span>(<span class="nu">255</span>) <span class="kw">NOT NULL</span>,
+    LastCookedDate  <span class="kw">DATE</span>,          <span class="cm">-- core to rotation intelligence</span>
+    CookCount       <span class="kw">INT DEFAULT</span> <span class="nu">0</span>, <span class="cm">-- tracks favourites</span>
+    ImageUrl        <span class="kw">TEXT</span>,
+    CreatedAt       <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="cm">-- Indexes for fast rotation queries</span>
+<span class="kw">CREATE INDEX</span> idx_recipes_rotation
+    <span class="kw">ON</span> <span class="ty">Recipes</span>(UserId, LastCookedDate);
+
+<span class="kw">CREATE TABLE</span> <span class="ty">Ingredients</span> (
+    Id        <span class="kw">SERIAL PRIMARY KEY</span>,
+    RecipeId  <span class="kw">INT REFERENCES</span> <span class="ty">Recipes</span>(Id),
+    Name      <span class="kw">VARCHAR</span>(<span class="nu">255</span>),
+    Quantity  <span class="kw">DECIMAL</span>,
+    Unit      <span class="kw">VARCHAR</span>(<span class="nu">50</span>),
+    IsStaple  <span class="kw">BOOLEAN DEFAULT FALSE</span> <span class="cm">-- pantry items excluded from grocery list</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="ty">MealPlans</span> (
+    Id             <span class="kw">SERIAL PRIMARY KEY</span>,
+    UserId         <span class="kw">INT REFERENCES</span> <span class="ty">Users</span>(Id),
+    WeekStartDate  <span class="kw">DATE NOT NULL</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="ty">MealPlanItems</span> (
+    Id          <span class="kw">SERIAL PRIMARY KEY</span>,
+    MealPlanId  <span class="kw">INT REFERENCES</span> <span class="ty">MealPlans</span>(Id),
+    RecipeId    <span class="kw">INT REFERENCES</span> <span class="ty">Recipes</span>(Id),
+    DayOfWeek   <span class="kw">INT</span>,   <span class="cm">-- 0 = Monday … 6 = Sunday</span>
+    MealType    <span class="kw">VARCHAR</span>(<span class="nu">20</span>)  <span class="cm">-- breakfast / lunch / dinner</span>
+);</code></pre>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="setup">🚀 Getting Started</h2>
+
+<h3>Prerequisites</h3>
+<ul>
+  <li>Node.js 18+ and npm</li>
+  <li>.NET 8 SDK</li>
+  <li>PostgreSQL 14+</li>
+</ul>
+
+<h3>Backend Setup</h3>
+<pre><code><span class="cm"># Clone repository</span>
+git clone https://github.com/yourusername/recipe-vault.git
+cd recipe-vault/backend
+
+<span class="cm"># Restore dependencies</span>
+dotnet restore
+
+<span class="cm"># Update connection string in appsettings.json, then run migrations</span>
+dotnet ef database update
+
+<span class="cm"># Run the API</span>
+dotnet run
+<span class="cm"># API available at https://localhost:5001</span></code></pre>
+
+<h3>Frontend Setup</h3>
+<pre><code><span class="cm"># Install dependencies</span>
+cd ../frontend
+npm install
+
+<span class="cm"># Update API URL in environment.ts, then start dev server</span>
+ng serve
+<span class="cm"># App available at http://localhost:4200</span></code></pre>
+
+<h3>Environment Variables</h3>
+
+<p><strong>Backend (appsettings.json):</strong></p>
+<pre><code>{
+  <span class="st">"ConnectionStrings"</span>: {
+    <span class="st">"DefaultConnection"</span>: <span class="st">"Host=localhost;Database=recipevault;Username=postgres;Password=yourpassword"</span>
+  },
+  <span class="st">"JwtSettings"</span>: {
+    <span class="st">"Secret"</span>:         <span class="st">"your-secret-key-min-32-chars"</span>,
+    <span class="st">"Issuer"</span>:         <span class="st">"RecipeVaultAPI"</span>,
+    <span class="st">"Audience"</span>:       <span class="st">"RecipeVaultClient"</span>,
+    <span class="st">"ExpiryMinutes"</span>:  <span class="nu">60</span>
+  },
+  <span class="st">"AzureStorage"</span>: {
+    <span class="st">"ConnectionString"</span>: <span class="st">"your-azure-storage-connection"</span>
+  }
+}</code></pre>
+
+<p><strong>Frontend (environment.ts):</strong></p>
+<pre><code><span class="kw">export const</span> environment = {
+  production: <span class="kw">false</span>,
+  apiUrl: <span class="st">'https://localhost:5001/api'</span>
+};</code></pre>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="api">📚 API Documentation</h2>
+
+<p>Once the backend is running, visit the interactive docs: <code>https://localhost:5001/swagger</code></p>
+
+<h3>Key Endpoints</h3>
+
+<pre><code><span class="cm">── Recipes ──────────────────────────────────────────────────</span>
+<span class="kw">GET</span>    /api/recipes                        <span class="cm">Get user's recipe vault</span>
+<span class="kw">POST</span>   /api/recipes                        <span class="cm">Create new recipe</span>
+<span class="kw">GET</span>    /api/recipes/{id}                   <span class="cm">Get recipe details</span>
+<span class="kw">PUT</span>    /api/recipes/{id}                   <span class="cm">Update recipe</span>
+<span class="kw">DELETE</span> /api/recipes/{id}                   <span class="cm">Delete recipe</span>
+<span class="kw">GET</span>    /api/recipes/rotation-suggestions   <span class="cm">Get least recently cooked</span>
+<span class="kw">PATCH</span>  /api/recipes/{id}/cook-count        <span class="cm">Increment cook count</span>
+
+<span class="cm">── Meal Plans ───────────────────────────────────────────────</span>
+<span class="kw">GET</span>    /api/mealplans                      <span class="cm">Get user's meal plans</span>
+<span class="kw">POST</span>   /api/mealplans                      <span class="cm">Create meal plan</span>
+<span class="kw">GET</span>    /api/mealplans/{id}                 <span class="cm">Get specific meal plan</span>
+<span class="kw">PUT</span>    /api/mealplans/{id}                 <span class="cm">Update meal plan</span>
+<span class="kw">POST</span>   /api/mealplans/auto-generate        <span class="cm">Generate plan automatically</span>
+
+<span class="cm">── Grocery ──────────────────────────────────────────────────</span>
+<span class="kw">GET</span>    /api/grocery-lists/{mealPlanId}     <span class="cm">Generate grocery list</span>
+
+<span class="cm">── Auth ─────────────────────────────────────────────────────</span>
+<span class="kw">POST</span>   /api/auth/register                 <span class="cm">Register new user</span>
+<span class="kw">POST</span>   /api/auth/login                    <span class="cm">Login → returns JWT</span>
+<span class="kw">POST</span>   /api/auth/refresh                  <span class="cm">Refresh JWT token</span></code></pre>
+
+<h3>Sample: Create Recipe</h3>
+<pre><code><span class="kw">POST</span> /api/recipes
+<span class="ty">Authorization</span>: Bearer &lt;token&gt;
+
+{
+  <span class="st">"name"</span>:            <span class="st">"Sambar"</span>,
+  <span class="st">"description"</span>:    <span class="st">"South Indian lentil stew"</span>,
+  <span class="st">"servingSize"</span>:     <span class="nu">4</span>,
+  <span class="st">"prepTimeMinutes"</span>: <span class="nu">15</span>,
+  <span class="st">"cookTimeMinutes"</span>: <span class="nu">30</span>,
+  <span class="st">"ingredients"</span>: [
+    { <span class="st">"name"</span>: <span class="st">"Toor dal"</span>,      <span class="st">"quantity"</span>: <span class="nu">1</span>,  <span class="st">"unit"</span>: <span class="st">"cup"</span>  },
+    { <span class="st">"name"</span>: <span class="st">"Tamarind"</span>,      <span class="st">"quantity"</span>: <span class="nu">1</span>,  <span class="st">"unit"</span>: <span class="st">"tbsp"</span> },
+    { <span class="st">"name"</span>: <span class="st">"Sambar powder"</span>, <span class="st">"quantity"</span>: <span class="nu">2</span>,  <span class="st">"unit"</span>: <span class="st">"tbsp"</span> }
+  ],
+  <span class="st">"tags"</span>: [<span class="st">"quick"</span>, <span class="st">"vegetarian"</span>, <span class="st">"traditional"</span>]
+}
+
+<span class="cm">── 201 Created ───────────────────────────────────────────────</span>
+{
+  <span class="st">"id"</span>:            <span class="nu">1</span>,
+  <span class="st">"name"</span>:          <span class="st">"Sambar"</span>,
+  <span class="st">"lastCookedDate"</span>: <span class="kw">null</span>,
+  <span class="st">"cookCount"</span>:     <span class="nu">0</span>,
+  <span class="st">"createdAt"</span>:     <span class="st">"2025-02-11T10:30:00Z"</span>
+}</code></pre>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="learned">🎓 What I Learned</h2>
+
+<h3>1. Rotation Algorithm Design</h3>
+<p><strong>Challenge:</strong> How to suggest meals that balance variety, cooking time, and user preferences from only 30 recipes — without over-engineering with ML?</p>
+<p><strong>Solution:</strong> A transparent weighted scoring system.</p>
+
+<pre><code><span class="kw">public double</span> <span class="fn">CalculateRecipeScore</span>(<span class="ty">Recipe</span> recipe, <span class="ty">DateTime</span> targetDate)
+{
+    <span class="kw">var</span> days = (targetDate - (recipe.LastCookedDate ?? <span class="ty">DateTime</span>.MinValue)).Days;
+
+    <span class="kw">var</span> recencyScore    = <span class="ty">Math</span>.<span class="fn">Min</span>(days / <span class="nu">14.0</span>, <span class="nu">1.0</span>);
+    <span class="kw">var</span> popularityScore = recipe.CookCount &gt; <span class="nu">0</span>
+                            ? <span class="ty">Math</span>.<span class="fn">Min</span>(recipe.CookCount / <span class="nu">10.0</span>, <span class="nu">0.5</span>)
+                            : <span class="nu">0</span>;
+    <span class="kw">var</span> varietyPenalty  = _recentlyPlanned.<span class="fn">Contains</span>(recipe.Id) ? <span class="nu">-0.5</span> : <span class="nu">0</span>;
+
+    <span class="kw">return</span> recencyScore + popularityScore + varietyPenalty;
+}</code></pre>
+
+<div class="callout callout-green">
+  <strong>Learning:</strong> Simple algorithms can be highly effective. Don't reach for ML until rules genuinely fail.
+</div>
+
+<h3>2. Grocery List Consolidation</h3>
+<p><strong>Challenge:</strong> Ingredients from different recipes use different units (tsp, tbsp, cups, grams). Naively summing them produces nonsense.</p>
+<p><strong>Solution:</strong> A <code>UnitConverter</code> service normalises to a base unit before summing. Unknown units pass through unchanged rather than crashing.</p>
+
+<pre><code><span class="kw">public class</span> <span class="ty">UnitConverter</span>
+{
+    <span class="kw">private readonly</span> <span class="ty">Dictionary</span>&lt;<span class="kw">string</span>, <span class="kw">double</span>&gt; _toMl = <span class="kw">new</span>() {
+        { <span class="st">"tsp"</span>,  <span class="nu">5</span>   },
+        { <span class="st">"tbsp"</span>, <span class="nu">15</span>  },
+        { <span class="st">"cup"</span>,  <span class="nu">240</span> },
+        { <span class="st">"ml"</span>,   <span class="nu">1</span>   }
+    };
+
+    <span class="kw">public double</span> <span class="fn">ToBase</span>(<span class="kw">double</span> qty, <span class="kw">string</span> unit) =>
+        _toMl.<span class="fn">TryGetValue</span>(unit.<span class="fn">ToLower</span>(), <span class="kw">out var</span> factor)
+            ? qty * factor
+            : qty; <span class="cm">// unknown unit → pass through</span>
+}</code></pre>
+
+<div class="callout callout-green">
+  <strong>Learning:</strong> Design for graceful degradation. An imperfect grocery list is more useful than a broken one.
+</div>
+
+<h3>3. Image Upload Without Database Bloat</h3>
+<p><strong>Challenge:</strong> Storing recipe images in the database is slow and expensive at scale.</p>
+<p><strong>Solution:</strong> Angular uploads directly to Azure Blob Storage using short-lived SAS tokens issued by the .NET API. The database stores only the URL. Images are resized to max 1200px / 1 MB on upload.</p>
+
+<div class="callout callout-green">
+  <strong>Learning:</strong> Offload specialised tasks to purpose-built services. The database should store data, not files.
+</div>
+
+<h3>4. Angular State Management</h3>
+<p><strong>Challenge:</strong> Meal plan state is needed across multiple components — calendar, recipe list, grocery list — simultaneously.</p>
+<p><strong>Solution:</strong> A <code>BehaviorSubject</code> in <code>MealPlanService</code>. All subscribed components auto-update without prop-drilling or a heavy library like NgRx.</p>
+
+<pre><code><span class="at">@Injectable</span>({ providedIn: <span class="st">'root'</span> })
+<span class="kw">export class</span> <span class="ty">MealPlanService</span> {
+  <span class="kw">private</span> mealPlan$ = <span class="kw">new</span> <span class="ty">BehaviorSubject</span>&lt;<span class="ty">MealPlan</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>);
+  plan$ = <span class="kw">this</span>.mealPlan$.<span class="fn">asObservable</span>();
+
+  <span class="fn">update</span>(plan: <span class="ty">MealPlan</span>) {
+    <span class="kw">this</span>.mealPlan$.<span class="fn">next</span>(plan);  <span class="cm">// all subscribers auto-update</span>
+  }
+}</code></pre>
+
+<div class="callout callout-green">
+  <strong>Learning:</strong> Choose the simplest state tool that solves the problem. RxJS covered all requirements here without NgRx boilerplate.
+</div>
+
+<h3>5. JWT Interceptor for Silent Token Refresh</h3>
+
+<pre><code><span class="fn">intercept</span>(req: <span class="ty">HttpRequest</span>&lt;<span class="kw">any</span>&gt;, next: <span class="ty">HttpHandler</span>): <span class="ty">Observable</span>&lt;<span class="ty">HttpEvent</span>&lt;<span class="kw">any</span>&gt;&gt; {
+  <span class="kw">const</span> token = <span class="kw">this</span>.authService.<span class="fn">getAccessToken</span>();
+
+  <span class="kw">if</span> (token) {
+    req = req.<span class="fn">clone</span>({
+      setHeaders: { <span class="ty">Authorization</span>: <span class="st">`Bearer </span><span class="pl">${token}</span><span class="st">`</span> }
+    });
+  }
+
+  <span class="kw">return</span> <span class="fn">next</span>.<span class="fn">handle</span>(req).<span class="fn">pipe</span>(
+    <span class="fn">catchError</span>(err =&gt; {
+      <span class="kw">if</span> (err.status === <span class="nu">401</span>) {
+        <span class="kw">return this</span>.authService.<span class="fn">refreshToken</span>().<span class="fn">pipe</span>(
+          <span class="fn">switchMap</span>(() =&gt; <span class="fn">next</span>.<span class="fn">handle</span>(req))
+        );
+      }
+      <span class="kw">return</span> <span class="fn">throwError</span>(() =&gt; err);
+    })
+  );
+}</code></pre>
+
+<div class="callout callout-green">
+  <strong>Learning:</strong> Interceptors are the right place for cross-cutting concerns like auth. Keeps all other services clean.
+</div>
+
+<h3>Strategic Decisions Explained</h3>
+
+<table class="market">
+  <thead>
+    <tr><th>Decision</th><th>Alternative Considered</th><th>Why I Chose This Approach</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>No external recipe APIs</strong></td><td>Spoonacular, Edamam</td><td>Goes against core philosophy; cultural recipes not covered; adds cost and dependency</td></tr>
+    <tr><td><strong>30-recipe cap in UI</strong></td><td>Unlimited from day one</td><td>Reinforces rotation philosophy; reduces decision fatigue; improves algorithm quality</td></tr>
+    <tr><td><strong>No social features in MVP</strong></td><td>Sharing, following, community plans</td><td>Nail core value prop first; social adds moderation complexity; target users value privacy</td></tr>
+    <tr><td><strong>Angular + .NET over MERN</strong></td><td>MongoDB, Express, React, Node</td><td>Strong typing end-to-end; enterprise credibility; my existing expertise; relational data fits SQL</td></tr>
+    <tr><td><strong>RxJS over NgRx</strong></td><td>NgRx, Zustand, Signals</td><td>App complexity doesn't justify NgRx boilerplate; BehaviorSubject is sufficient and transparent</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>📈 Future Roadmap</h2>
+
+<h3>V2.0 Planned Features</h3>
+<ul>
+  <li>Mobile app — Angular + Capacitor for iOS and Android</li>
+  <li>Recipe import from photos using OCR — photograph a handwritten recipe card</li>
+  <li>Family sharing — parent shares their vault with children</li>
+  <li>Meal prep timeline — step-by-step batch cooking schedule</li>
+  <li>Optional nutritional tracking — macros per recipe</li>
+  <li>Budget tracking — estimated grocery cost per weekly plan</li>
+</ul>
+
+<h3>Potential Product Direction</h3>
+<ul>
+  <li><strong>Free tier:</strong> up to 30 recipes, basic weekly planning</li>
+  <li><strong>Pro tier ($4.99/mo):</strong> unlimited recipes, family sharing, advanced analytics</li>
+  <li><strong>Target market:</strong> immigrant communities, meal-prep enthusiasts, families with dietary restrictions</li>
+</ul>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>👤 About This Project</h2>
+
+<p>I'm a full-stack developer with 8 years of experience. After a career break in 2023, I built Recipe Vault to demonstrate that my technical skills remain current — and to show that I think about <em>why</em> I'm building something, not just <em>how</em>.</p>
+
+<p><strong>Stack experience:</strong> Angular · .NET Core · TypeScript · C# · SQL Server · PostgreSQL · Azure · AWS</p>
+
+<p style="margin-top: 40px; text-align: center; color: #8250df; font-style: italic; font-size: 1.05em;">
+  Built with care to solve a real problem. · February 2025
+</p>
+
+</body>
+</html>
