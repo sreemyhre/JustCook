@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "RecipeVault.Infrastructure/1.0.0": {
+        "dependencies": {
+          "RecipeVault.Core": "1.0.0"
+        },
+        "runtime": {
+          "RecipeVault.Infrastructure.dll": {}
+        }
+      },
+      "RecipeVault.Core/1.0.0": {
+        "runtime": {
+          "RecipeVault.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "RecipeVault.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "RecipeVault.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,12 @@
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\bin\Debug\net8.0\RecipeVault.Core.deps.json
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\bin\Debug\net8.0\RecipeVault.Core.dll
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\bin\Debug\net8.0\RecipeVault.Core.pdb
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.AssemblyInfoInputs.cache
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.AssemblyInfo.cs
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.csproj.CoreCompileInputs.cache
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.sourcelink.json
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.dll
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\refint\RecipeVault.Core.dll
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\RecipeVault.Core.pdb
+C:\Sree_Myhre\IT Job\JustCook\JustCook\backend\RecipeVault.Core\obj\Debug\net8.0\ref\RecipeVault.Core.dll
