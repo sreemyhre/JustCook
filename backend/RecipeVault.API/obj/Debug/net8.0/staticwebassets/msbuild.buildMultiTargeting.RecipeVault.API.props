@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\RecipeVault.API.props" />
-</Project>
