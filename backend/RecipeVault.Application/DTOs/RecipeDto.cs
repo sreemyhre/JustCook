@@ -11,6 +11,7 @@ public class RecipeDto
     public int CookTimeMinutes { get; set; }
     public DateTime? LastCookedDate { get; set; }
     public int CookCount { get; set; }
+    public string? Instructions { get; set; }
     public string? ImageUrl { get; set; }
     public DateTime CreatedAt { get; set; }
 }

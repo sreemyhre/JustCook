@@ -8,5 +8,6 @@ public class CreateRecipeDto
     public int ServingSize { get; set; }
     public int PrepTimeMinutes { get; set; }
     public int CookTimeMinutes { get; set; }
+    public string? Instructions { get; set; }
     public string? ImageUrl { get; set; }
 }
