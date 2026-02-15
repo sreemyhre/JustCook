@@ -9,6 +9,7 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         CreateMap<CreateRecipeDto, Recipe>();
+        CreateMap<UpdateRecipeDto, Recipe>();
         CreateMap<Recipe, RecipeDto>();
     }
 }

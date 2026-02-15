@@ -69,4 +69,81 @@ public class RecipeRepositoryTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task GetAllByUserIdAsync_ShouldReturnOnlyUserRecipes()
+    {
+        using var context = CreateInMemoryContext();
+        context.Recipes.Add(new Recipe { Name = "Pasta", UserId = 1 });
+        context.Recipes.Add(new Recipe { Name = "Tacos", UserId = 1 });
+        context.Recipes.Add(new Recipe { Name = "Burger", UserId = 2 });
+        await context.SaveChangesAsync();
+
+        var repo = new RecipeRepository(context);
+        var result = (await repo.GetAllByUserIdAsync(1)).ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.All(result, r => Assert.Equal(1, r.UserId));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldPersistChanges()
+    {
+        using var context = CreateInMemoryContext();
+        var recipe = new Recipe { Name = "Pasta", UserId = 1, ServingSize = 4 };
+        context.Recipes.Add(recipe);
+        await context.SaveChangesAsync();
+
+        recipe.Name = "Updated Pasta";
+        var repo = new RecipeRepository(context);
+        await repo.UpdateAsync(recipe);
+
+        var updated = await context.Recipes.FindAsync(recipe.Id);
+        Assert.NotNull(updated);
+        Assert.Equal("Updated Pasta", updated.Name);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenRecipeExists_ShouldReturnTrue()
+    {
+        using var context = CreateInMemoryContext();
+        var recipe = new Recipe { Name = "Pasta", UserId = 1 };
+        context.Recipes.Add(recipe);
+        await context.SaveChangesAsync();
+
+        var repo = new RecipeRepository(context);
+        var result = await repo.DeleteAsync(recipe.Id);
+
+        Assert.True(result);
+        Assert.Null(await context.Recipes.FindAsync(recipe.Id));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenRecipeNotFound_ShouldReturnFalse()
+    {
+        using var context = CreateInMemoryContext();
+        var repo = new RecipeRepository(context);
+
+        var result = await repo.DeleteAsync(999);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task GetLeastRecentlyCookedAsync_ShouldReturnOrderedByLastCooked()
+    {
+        using var context = CreateInMemoryContext();
+        context.Recipes.Add(new Recipe { Name = "Never Cooked", UserId = 1, LastCookedDate = null });
+        context.Recipes.Add(new Recipe { Name = "Recent", UserId = 1, LastCookedDate = DateTime.UtcNow });
+        context.Recipes.Add(new Recipe { Name = "Old", UserId = 1, LastCookedDate = DateTime.UtcNow.AddDays(-30) });
+        await context.SaveChangesAsync();
+
+        var repo = new RecipeRepository(context);
+        var result = (await repo.GetLeastRecentlyCookedAsync(1, 3)).ToList();
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal("Never Cooked", result[0].Name);
+        Assert.Equal("Old", result[1].Name);
+        Assert.Equal("Recent", result[2].Name);
+    }
 }

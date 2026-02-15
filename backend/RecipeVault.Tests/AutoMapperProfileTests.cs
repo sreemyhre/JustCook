@@ -19,14 +19,17 @@ public class AutoMapperProfileTests
     [Fact]
     public void MapperConfiguration_ShouldNotThrowOnMapping()
     {
-        var dto = new CreateRecipeDto { Name = "Test", UserId = 1 };
+        var createDto = new CreateRecipeDto { Name = "Test", UserId = 1 };
+        var updateDto = new UpdateRecipeDto { Name = "Test" };
         var recipe = new Recipe { Id = 1, Name = "Test", UserId = 1 };
 
-        var mappedException = Record.Exception(() => _mapper.Map<Recipe>(dto));
-        var mappedException2 = Record.Exception(() => _mapper.Map<RecipeDto>(recipe));
+        var ex1 = Record.Exception(() => _mapper.Map<Recipe>(createDto));
+        var ex2 = Record.Exception(() => _mapper.Map<Recipe>(updateDto));
+        var ex3 = Record.Exception(() => _mapper.Map<RecipeDto>(recipe));
 
-        Assert.Null(mappedException);
-        Assert.Null(mappedException2);
+        Assert.Null(ex1);
+        Assert.Null(ex2);
+        Assert.Null(ex3);
     }
 
     [Fact]

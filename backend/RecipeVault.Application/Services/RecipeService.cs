@@ -30,4 +30,42 @@ public class RecipeService : IRecipeService
         if (recipe == null) return null;
         return _mapper.Map<RecipeDto>(recipe);
     }
+
+    public async Task<IEnumerable<RecipeDto>> GetAllByUserIdAsync(int userId)
+    {
+        var recipes = await _recipeRepository.GetAllByUserIdAsync(userId);
+        return _mapper.Map<IEnumerable<RecipeDto>>(recipes);
+    }
+
+    public async Task<RecipeDto?> UpdateRecipeAsync(int id, UpdateRecipeDto dto)
+    {
+        var recipe = await _recipeRepository.GetByIdAsync(id);
+        if (recipe == null) return null;
+
+        _mapper.Map(dto, recipe);
+        await _recipeRepository.UpdateAsync(recipe);
+        return _mapper.Map<RecipeDto>(recipe);
+    }
+
+    public async Task<bool> DeleteRecipeAsync(int id)
+    {
+        return await _recipeRepository.DeleteAsync(id);
+    }
+
+    public async Task<IEnumerable<RecipeDto>> GetRotationSuggestionsAsync(int userId, int count)
+    {
+        var recipes = await _recipeRepository.GetLeastRecentlyCookedAsync(userId, count);
+        return _mapper.Map<IEnumerable<RecipeDto>>(recipes);
+    }
+
+    public async Task<RecipeDto?> LogCookAsync(int id)
+    {
+        var recipe = await _recipeRepository.GetByIdAsync(id);
+        if (recipe == null) return null;
+
+        recipe.CookCount++;
+        recipe.LastCookedDate = DateTime.UtcNow;
+        await _recipeRepository.UpdateAsync(recipe);
+        return _mapper.Map<RecipeDto>(recipe);
+    }
 }
