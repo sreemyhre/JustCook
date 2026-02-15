@@ -1,6 +1,6 @@
-namespace RecipeVault.Core.Entities;
+namespace RecipeVault.Application.DTOs;
 
-public class Recipe
+public class RecipeDto
 {
     public int Id { get; set; }
     public int UserId { get; set; }
@@ -13,9 +13,5 @@ public class Recipe
     public int CookCount { get; set; }
     public string? Instructions { get; set; }
     public string? ImageUrl { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public User User { get; set; } = null!;
-    public ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
-    public ICollection<RecipeTag> RecipeTags { get; set; } = new List<RecipeTag>();
+    public DateTime CreatedAt { get; set; }
 }

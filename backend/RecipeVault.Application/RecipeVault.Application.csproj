@@ -10,4 +10,8 @@
     <ProjectReference Include="..\RecipeVault.Core\RecipeVault.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.*" />
+  </ItemGroup>
+
 </Project>
