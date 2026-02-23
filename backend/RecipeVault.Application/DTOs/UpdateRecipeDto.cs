@@ -9,4 +9,5 @@ public class UpdateRecipeDto
     public int CookTimeMinutes { get; set; }
     public string? Instructions { get; set; }
     public string? ImageUrl { get; set; }
+    public List<CreateIngredientDto> Ingredients { get; set; } = new();
 }

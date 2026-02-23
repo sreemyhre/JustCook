@@ -42,6 +42,7 @@ public class RecipeService : IRecipeService
         var recipe = await _recipeRepository.GetByIdAsync(id);
         if (recipe == null) return null;
 
+        recipe.Ingredients.Clear();
         _mapper.Map(dto, recipe);
         await _recipeRepository.UpdateAsync(recipe);
         return _mapper.Map<RecipeDto>(recipe);

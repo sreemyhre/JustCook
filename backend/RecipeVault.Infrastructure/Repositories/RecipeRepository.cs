@@ -16,12 +16,15 @@ public class RecipeRepository : IRecipeRepository
 
     public async Task<Recipe?> GetByIdAsync(int id)
     {
-        return await _context.Recipes.FindAsync(id);
+        return await _context.Recipes
+            .Include(r => r.Ingredients)
+            .FirstOrDefaultAsync(r => r.Id == id);
     }
 
     public async Task<IEnumerable<Recipe>> GetAllByUserIdAsync(int userId)
     {
         return await _context.Recipes
+            .Include(r => r.Ingredients)
             .Where(r => r.UserId == userId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -53,6 +56,7 @@ public class RecipeRepository : IRecipeRepository
     public async Task<IEnumerable<Recipe>> GetLeastRecentlyCookedAsync(int userId, int count)
     {
         return await _context.Recipes
+            .Include(r => r.Ingredients)
             .Where(r => r.UserId == userId)
             .OrderBy(r => r.LastCookedDate)
             .Take(count)

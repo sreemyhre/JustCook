@@ -185,4 +185,36 @@ public class RecipeServiceTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task UpdateRecipeAsync_ShouldClearExistingIngredients()
+    {
+        var recipe = new Recipe
+        {
+            Id = 1,
+            Name = "Pasta",
+            UserId = 1,
+            Ingredients = new List<Ingredient>
+            {
+                new() { Id = 1, Name = "Old Ingredient", Quantity = 1 }
+            }
+        };
+        var dto = new UpdateRecipeDto
+        {
+            Name = "Updated Pasta",
+            Ingredients = new List<CreateIngredientDto>
+            {
+                new() { Name = "New Ingredient", Quantity = 2, Unit = "cups" }
+            }
+        };
+        var expected = new RecipeDto { Id = 1, Name = "Updated Pasta", UserId = 1 };
+
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
+        _mockMapper.Setup(m => m.Map<RecipeDto>(recipe)).Returns(expected);
+
+        await _service.UpdateRecipeAsync(1, dto);
+
+        Assert.Empty(recipe.Ingredients);
+        _mockRepo.Verify(r => r.UpdateAsync(recipe), Times.Once);
+    }
 }

@@ -146,4 +146,50 @@ public class RecipeRepositoryTests
         Assert.Equal("Old", result[1].Name);
         Assert.Equal("Recent", result[2].Name);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ShouldIncludeIngredients()
+    {
+        using var context = CreateInMemoryContext();
+        var recipe = new Recipe
+        {
+            Name = "Pasta",
+            UserId = 1,
+            Ingredients = new List<Ingredient>
+            {
+                new() { Name = "Spaghetti", Quantity = 400, Unit = "g" },
+                new() { Name = "Eggs", Quantity = 3 }
+            }
+        };
+        context.Recipes.Add(recipe);
+        await context.SaveChangesAsync();
+
+        var repo = new RecipeRepository(context);
+        var result = await repo.GetByIdAsync(recipe.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Ingredients.Count);
+    }
+
+    [Fact]
+    public async Task AddAsync_WithIngredients_ShouldSaveIngredients()
+    {
+        using var context = CreateInMemoryContext();
+        var repo = new RecipeRepository(context);
+        var recipe = new Recipe
+        {
+            Name = "Tacos",
+            UserId = 1,
+            Ingredients = new List<Ingredient>
+            {
+                new() { Name = "Tortillas", Quantity = 4, Unit = "pieces" },
+                new() { Name = "Ground Beef", Quantity = 500, Unit = "g" }
+            }
+        };
+
+        await repo.AddAsync(recipe);
+
+        var saved = await context.Recipes.Include(r => r.Ingredients).FirstAsync();
+        Assert.Equal(2, saved.Ingredients.Count);
+    }
 }
