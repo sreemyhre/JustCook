@@ -20,6 +20,9 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ITagService, TagService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

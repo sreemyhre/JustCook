@@ -14,5 +14,9 @@ public class AutoMapperProfile : Profile
 
         CreateMap<CreateIngredientDto, Ingredient>();
         CreateMap<Ingredient, IngredientDto>();
+
+        CreateMap<CreateTagDto, Tag>();
+        CreateMap<UpdateTagDto, Tag>();
+        CreateMap<Tag, TagDto>();
     }
 }
