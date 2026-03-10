@@ -826,6 +826,109 @@ ng serve
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2>📈 Future Roadmap</h2>
 
+<h3>V1.0 — Development Sequence (In Progress)</h3>
+
+<p>The first presentable version of Recipe Vault follows this build order:</p>
+
+<h4>Stage 1 — MealPlan API (Backend) ✅ In Progress</h4>
+<ul>
+  <li>MealPlan CRUD endpoints (create, get, update, delete a weekly plan)</li>
+  <li>Tag-quota weekly generation — user specifies "3 recipes from tag1, 2 from tag2"</li>
+  <li>Auto-generate fallback using rotation scoring algorithm (last cooked date + cook count + variety penalty)</li>
+  <li>Save generated plan to DB (MealPlans + MealPlanItems tables)</li>
+</ul>
+
+<h4>Stage 2 — Angular Frontend ✅ In Progress</h4>
+<ul>
+  <li>Recipe list with add / edit / delete</li>
+  <li>Tag management (create, assign, remove tags on recipes)</li>
+  <li>Weekly planner view — display the generated week</li>
+  <li>"Generate my week" screen with optional tag-quota input</li>
+  <li>Hardcoded <code>userId = 1</code> during development — swapped out at auth stage</li>
+</ul>
+
+<div class="callout callout-purple">
+  <strong>Frontend Development Plan — Angular V1.0</strong>
+</div>
+
+<h4>Color Palette (from UI Mock)</h4>
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+  <tbody>
+    <tr><td>Primary</td><td><code>#1B3A3A</code> (dark teal)</td><td>Navbar, headers</td></tr>
+    <tr><td>Accent</td><td><code>#FF6B35</code> (orange)</td><td>CTAs, active states, badges</td></tr>
+    <tr><td>Surface</td><td><code>#FFFFFF</code></td><td>Cards, panels</td></tr>
+    <tr><td>Background</td><td><code>#F5F5F0</code></td><td>Page background</td></tr>
+  </tbody>
+</table>
+
+<h4>Step 0 — Backend CORS Fix</h4>
+<ul>
+  <li>Add CORS policy to <code>Program.cs</code> allowing <code>http://localhost:4200</code></li>
+</ul>
+
+<h4>Step 1 — Angular Project Setup</h4>
+<ul>
+  <li><code>ng new frontend --routing --style=scss</code></li>
+  <li>Add Angular Material with custom teal/orange theme</li>
+  <li><code>environment.ts</code> — <code>apiUrl: 'http://localhost:5000/api'</code>, <code>defaultUserId: 1</code></li>
+  <li>Folder structure: <code>core/</code> (models, services) · <code>features/</code> (recipes, tags, meal-planner) · <code>shared/</code> (nav, components)</li>
+</ul>
+
+<h4>Step 2 — Core Models &amp; Services</h4>
+<ul>
+  <li>TypeScript interfaces matching all backend DTOs: <code>RecipeDto</code>, <code>TagDto</code>, <code>MealPlanDto</code>, <code>IngredientDto</code>, enums</li>
+  <li><code>recipe.service.ts</code> — getAll, getById, create, update, delete, logCook</li>
+  <li><code>tag.service.ts</code> — getAll, create, update, delete, addToRecipe, removeFromRecipe</li>
+  <li><code>meal-plan.service.ts</code> — getAll, getById, create, delete, generate</li>
+</ul>
+
+<h4>Step 3 — Navbar + Routing Shell</h4>
+<ul>
+  <li>JustCook logo on dark teal navbar, orange active link highlight</li>
+  <li>Routes: <code>/recipes</code> · <code>/recipes/new</code> · <code>/recipes/:id</code> · <code>/recipes/:id/edit</code> · <code>/tags</code> · <code>/planner</code> · <code>/planner/generate</code></li>
+</ul>
+
+<h4>Step 4 — Recipe Feature</h4>
+<ul>
+  <li><strong>Recipe List</strong> — card grid, filter by tag dropdown</li>
+  <li><strong>Recipe Card</strong> (shared component) — name, cook time, "Last cooked X days ago" badge, tag chips, Edit/Delete/Log Cook buttons</li>
+  <li><strong>Recipe Form</strong> — name, description, serving size, prep/cook time, instructions, dynamic ingredient rows, tag multi-select</li>
+  <li><strong>Recipe Detail</strong> — full view + Log Cook button → PATCH <code>/api/recipes/:id/log-cook</code></li>
+</ul>
+
+<h4>Step 5 — Tag Management Page</h4>
+<ul>
+  <li>Inline create / edit / delete table at <code>/tags</code></li>
+  <li>No separate detail page — all operations inline</li>
+</ul>
+
+<h4>Step 6 — Weekly Planner</h4>
+<ul>
+  <li><strong>Planner Home</strong> (<code>/planner</code>) — "This Week's Meals" 7-day card view matching the UI mock (Mon–Sun, recipe name per day)</li>
+  <li><strong>Generate Plan Form</strong> (<code>/planner/generate</code>) — week date picker + optional tag quota rows ("3 from Vegan, 2 from Quick") → POST <code>/api/mealplans/generate</code></li>
+  <li>Empty state shown if no plan exists for selected week</li>
+</ul>
+
+<h4>Step 7 — Global SCSS Theme</h4>
+<ul>
+  <li>CSS custom properties wired to Angular Material palette</li>
+  <li>Shared card, button, badge styles across all features</li>
+  <li>Mobile-first responsive breakpoints</li>
+</ul>
+
+<h4>Stage 3 — Authentication (JWT)</h4>
+<ul>
+  <li>Register / Login endpoints returning JWT</li>
+  <li>Angular auth guards and HTTP interceptor for token attachment</li>
+  <li>Replace hardcoded <code>userId</code> query params with JWT claims across all APIs</li>
+  <li>Silent token refresh</li>
+</ul>
+
+<div class="callout callout-blue">
+  <strong>Principle:</strong> Build something visual and demoable before tackling auth plumbing. Auth secures what already works — it doesn't change any business logic.
+</div>
+
 <h3>V2.0 Planned Features</h3>
 <ul>
   <li>Mobile app — Angular + Capacitor for iOS and Android</li>

@@ -12,6 +12,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -27,6 +35,8 @@ builder.Services.AddScoped<IMealPlanRepository, MealPlanRepository>();
 builder.Services.AddScoped<IMealPlanService, MealPlanService>();
 
 var app = builder.Build();
+
+app.UseCors("AllowAngular");
 
 if (app.Environment.IsDevelopment())
 {
