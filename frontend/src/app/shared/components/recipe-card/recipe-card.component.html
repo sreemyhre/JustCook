@@ -1,0 +1,46 @@
+<div class="card recipe-card" (click)="goToDetail()">
+
+  <div class="card-header">
+    <span class="recipe-name">{{ recipe.name }}</span>
+    @if (daysSinceCooked === null) {
+      <span class="badge badge-grey">Never cooked</span>
+    } @else if (daysSinceCooked === 0) {
+      <span class="badge badge-accent">Today</span>
+    } @else {
+      <span class="badge badge-accent">{{ daysSinceCooked }}d ago</span>
+    }
+  </div>
+
+  <div class="meta-row">
+    <span class="meta-item">
+      <mat-icon class="meta-icon">schedule</mat-icon> Prep {{ recipe.prepTimeMinutes }}m
+    </span>
+    <span class="meta-item">
+      <mat-icon class="meta-icon">local_fire_department</mat-icon> Cook {{ recipe.cookTimeMinutes }}m
+    </span>
+    <span class="meta-item">
+      <mat-icon class="meta-icon">people</mat-icon> Serves {{ recipe.servingSize }}
+    </span>
+  </div>
+
+  @if (recipe.tags?.length) {
+    <div class="tags-row">
+      @for (tag of recipe.tags; track tag.id) {
+        <span class="tag-chip">{{ tag.name }}</span>
+      }
+    </div>
+  }
+
+  <div class="card-actions">
+    <button mat-icon-button title="Edit" (click)="goToEdit($event)">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-icon-button color="warn" title="Delete" (click)="onDelete($event)">
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button mat-raised-button class="btn-accent log-btn" (click)="onLogCook($event)">
+      <mat-icon>check_circle</mat-icon> Log Cook
+    </button>
+  </div>
+
+</div>

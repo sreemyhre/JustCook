@@ -21,7 +21,9 @@ public class RecipeService : IRecipeService
     {
         var recipe = _mapper.Map<Recipe>(dto);
         var created = await _recipeRepository.AddAsync(recipe);
-        return _mapper.Map<RecipeDto>(created);
+        await _recipeRepository.SetTagsAsync(created.Id, dto.TagIds);
+        var result = await _recipeRepository.GetByIdAsync(created.Id);
+        return _mapper.Map<RecipeDto>(result!);
     }
 
     public async Task<RecipeDto?> GetByIdAsync(int id)
@@ -45,7 +47,9 @@ public class RecipeService : IRecipeService
         recipe.Ingredients.Clear();
         _mapper.Map(dto, recipe);
         await _recipeRepository.UpdateAsync(recipe);
-        return _mapper.Map<RecipeDto>(recipe);
+        await _recipeRepository.SetTagsAsync(id, dto.TagIds);
+        var result = await _recipeRepository.GetByIdAsync(id);
+        return _mapper.Map<RecipeDto>(result!);
     }
 
     public async Task<bool> DeleteRecipeAsync(int id)

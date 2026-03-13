@@ -15,4 +15,5 @@ public class RecipeDto
     public string? ImageUrl { get; set; }
     public DateTime CreatedAt { get; set; }
     public List<IngredientDto> Ingredients { get; set; } = new();
+    public List<TagDto> Tags { get; set; } = new();
 }

@@ -10,7 +10,8 @@ public class AutoMapperProfile : Profile
     {
         CreateMap<CreateRecipeDto, Recipe>();
         CreateMap<UpdateRecipeDto, Recipe>();
-        CreateMap<Recipe, RecipeDto>();
+        CreateMap<Recipe, RecipeDto>()
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.RecipeTags.Select(rt => rt.Tag)));
 
         CreateMap<CreateIngredientDto, Ingredient>();
         CreateMap<Ingredient, IngredientDto>();

@@ -1,0 +1,42 @@
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  .page-title { margin: 0; }
+}
+
+.filter-row {
+  margin-bottom: 20px;
+}
+
+.tag-filter {
+  width: 220px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  color: #888;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 12px;
+    display: block;
+    margin-inline: auto;
+  }
+}

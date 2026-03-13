@@ -10,4 +10,5 @@ public interface IRecipeRepository
     Task UpdateAsync(Recipe recipe);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<Recipe>> GetLeastRecentlyCookedAsync(int userId, int count);
+    Task SetTagsAsync(int recipeId, List<int> tagIds);
 }

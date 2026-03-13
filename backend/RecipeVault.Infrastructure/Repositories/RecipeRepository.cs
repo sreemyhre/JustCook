@@ -18,6 +18,7 @@ public class RecipeRepository : IRecipeRepository
     {
         return await _context.Recipes
             .Include(r => r.Ingredients)
+            .Include(r => r.RecipeTags).ThenInclude(rt => rt.Tag)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
@@ -25,6 +26,7 @@ public class RecipeRepository : IRecipeRepository
     {
         return await _context.Recipes
             .Include(r => r.Ingredients)
+            .Include(r => r.RecipeTags).ThenInclude(rt => rt.Tag)
             .Where(r => r.UserId == userId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -57,9 +59,21 @@ public class RecipeRepository : IRecipeRepository
     {
         return await _context.Recipes
             .Include(r => r.Ingredients)
+            .Include(r => r.RecipeTags).ThenInclude(rt => rt.Tag)
             .Where(r => r.UserId == userId)
             .OrderBy(r => r.LastCookedDate)
             .Take(count)
             .ToListAsync();
+    }
+
+    public async Task SetTagsAsync(int recipeId, List<int> tagIds)
+    {
+        var existing = _context.RecipeTags.Where(rt => rt.RecipeId == recipeId);
+        _context.RecipeTags.RemoveRange(existing);
+
+        foreach (var tagId in tagIds)
+            _context.RecipeTags.Add(new RecipeTag { RecipeId = recipeId, TagId = tagId });
+
+        await _context.SaveChangesAsync();
     }
 }
