@@ -1,0 +1,45 @@
+<div class="page-container">
+  <div class="planner-header">
+    <h1 class="page-title">Weekly Planner</h1>
+    @if (plan()) {
+      <a mat-raised-button class="btn-accent" routerLink="/planner/generate">
+        <mat-icon>refresh</mat-icon> Regenerate
+      </a>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="spinner-wrap">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (!plan()) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">calendar_today</mat-icon>
+      <p>No meal plan yet.</p>
+      <a mat-raised-button class="btn-accent" routerLink="/planner/generate">
+        <mat-icon>auto_awesome</mat-icon> Generate Plan
+      </a>
+    </div>
+  } @else {
+    <div class="day-grid">
+      @for (day of days; track day; let i = $index) {
+        <div class="day-card card">
+          <div class="day-label">{{ day }}</div>
+          <div class="recipe-name">
+            @if (getRecipeForDay(i)) {
+              {{ getRecipeForDay(i) }}
+            } @else {
+              <span class="placeholder">—</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="plan-actions">
+      <button mat-stroked-button color="warn" (click)="deletePlan()" [disabled]="deleting()">
+        <mat-icon>delete</mat-icon> Delete Plan
+      </button>
+    </div>
+  }
+</div>
