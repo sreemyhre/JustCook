@@ -1,0 +1,37 @@
+<div class="page-container">
+  <div class="list-header">
+    <h1 class="page-title">Recipes</h1>
+    <a mat-raised-button class="btn-accent" routerLink="/recipes/new">
+      <mat-icon>add</mat-icon> New Recipe
+    </a>
+  </div>
+
+  <div class="filter-row">
+    <mat-form-field appearance="outline" class="tag-filter">
+      <mat-label>Filter by Tag</mat-label>
+      <mat-select [ngModel]="selectedTagId()" (ngModelChange)="selectedTagId.set($event)">
+        <mat-option [value]="null">All Tags</mat-option>
+        @for (tag of tags(); track tag.id) {
+          <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (filteredRecipes().length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">restaurant_menu</mat-icon>
+      <p>No recipes found. Add your first recipe!</p>
+    </div>
+  } @else {
+    <div class="recipe-grid">
+      @for (recipe of filteredRecipes(); track recipe.id) {
+        <app-recipe-card
+          [recipe]="recipe"
+          (deleteRequest)="onDelete($event)"
+          (logCookRequest)="onLogCook($event)"
+        />
+      }
+    </div>
+  }
+</div>

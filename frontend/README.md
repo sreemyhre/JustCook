@@ -149,25 +149,35 @@ frontend/                 Angular 19 standalone, SCSS, Angular Material
 
 **Angular 19** — standalone components, SCSS, Angular Material
 
-**Folder structure created, no feature components yet:**
+**Phase 0 (routing shell) + Phase 1 (Tags) + Phase 2 (Recipes) complete. Phase 3 (Meal Planner) next.**
 
 ```
 frontend/src/app/
 ├── core/
-│   ├── models/          EMPTY — TypeScript interfaces go here
-│   └── services/        EMPTY — HTTP services go here
+│   ├── models/
+│   │   ├── tag.model.ts          ✅ TagDto, CreateTagDto, UpdateTagDto
+│   │   ├── ingredient.model.ts   ✅ IngredientDto, CreateIngredientDto
+│   │   └── recipe.model.ts       ✅ RecipeDto, CreateRecipeDto, UpdateRecipeDto
+│   └── services/
+│       ├── tag.service.ts        ✅ getAll, create, update, delete
+│       └── recipe.service.ts     ✅ getAll, getById, create, update, delete, logCook, getRotationSuggestions
 ├── features/
-│   ├── recipes/         EMPTY
-│   ├── tags/            EMPTY
-│   └── meal-planner/    EMPTY
+│   ├── tags/
+│   │   └── tag-list/             ✅ Material table, inline edit, snackbar
+│   ├── recipes/
+│   │   ├── recipe-list/          ✅ responsive grid, tag filter dropdown
+│   │   ├── recipe-form/          ✅ ReactiveForm, FormArray ingredients, multi-select tags
+│   │   └── recipe-detail/        ✅ full view, Log Cook button
+│   └── meal-planner/
+│       ├── planner-home/         🔲 stub only — needs full implementation
+│       └── generate-plan/        🔲 stub only — needs full implementation
 ├── shared/
-│   ├── components/      EMPTY — RecipeCard etc.
-│   └── nav/             EMPTY — Navbar
-├── app.component.ts     Root component (navbar + router-outlet)
-├── app.component.html   Navbar HTML + <router-outlet>
-├── app.component.scss   Navbar styles
-├── app.config.ts        provideHttpClient + provideRouter + provideAnimationsAsync
-└── app.routes.ts        EMPTY — routes not yet defined
+│   ├── components/
+│   │   └── recipe-card/          ✅ name, times, servings, last-cooked badge, tag chips, buttons
+│   └── nav/                      ✅ navbar
+├── app.component.ts     ✅ Root component
+├── app.config.ts        ✅ provideHttpClient + provideRouter + provideAnimationsAsync + provideNativeDateAdapter
+└── app.routes.ts        ✅ all routes registered (lazy-loaded)
 ```
 
 **Key config files:**
@@ -255,14 +265,52 @@ Also add `provideNativeDateAdapter()` to `app.config.ts` (required for MatDatepi
 **Verify:** Recipe grid at `/recipes`, create/edit with ingredients + tags, log cook updates badge.
 
 ### Phase 3 — Meal Planner Feature
-**Files:**
-- `core/models/enums.ts` — `DayOfWeekEnum` (Mon=0…Sun=6), `MealType` (Breakfast=0, Lunch=1, Dinner=2)
-- `core/models/meal-plan.model.ts` — `MealPlanDto`, `MealPlanItemDto`, `GenerateMealPlanDto`, `TagQuotaDto`
-- `core/services/meal-plan.service.ts` — `getAll(userId)`, `getById`, `generate`, `delete`
-- `features/meal-planner/planner-home/` — 7-day card grid, finds current week's plan by matching Monday date, empty state with Generate button
-- `features/meal-planner/generate-plan/` — date picker (defaults to next Monday) + dynamic tag quota rows (tag dropdown + count), submits to `/api/mealplans/generate`
 
-**Verify:** Empty state at `/planner`, generate plan → 7 cards with recipe names appear.
+**Files to create (new unless marked modify):**
+- `core/models/enums.ts` — `DayOfWeekEnum` (Mon=0…Sun=6), `MealType` (Breakfast=0, Lunch=1, Dinner=2)
+- `core/models/meal-plan.model.ts` — `MealPlanDto`, `MealPlanItemDto`, `CreateMealPlanDto`, `GenerateMealPlanDto`, `TagQuotaDto`
+- `core/services/meal-plan.service.ts` — `getAll(userId)`, `getById`, `generate(dto)`, `delete(id)`
+- `features/meal-planner/planner-home/planner-home.component.ts` — MODIFY stub
+- `features/meal-planner/planner-home/planner-home.component.html` — NEW
+- `features/meal-planner/planner-home/planner-home.component.scss` — NEW
+- `features/meal-planner/generate-plan/generate-plan.component.ts` — MODIFY stub
+- `features/meal-planner/generate-plan/generate-plan.component.html` — NEW
+- `features/meal-planner/generate-plan/generate-plan.component.scss` — NEW
+
+**`planner-home` — weekly plan view:**
+- On init: call `getAll(userId)` → find plan where `weekStartDate` date-matches current Monday
+- 7-day grid (one card per day Mon–Sun): show recipe name from `items` where `item.dayOfWeek === index`
+- Empty day slots show "—" placeholder
+- Empty state (no plan for this week): centred message + "Generate Plan" `[routerLink]="['/planner/generate']"` button
+- "Delete Plan" button (bottom of page) when a plan exists → calls `delete(plan.id)` → clears state
+- Use `signal<MealPlanDto | null>` for the loaded plan and `signal(false)` for loading state
+
+**`generate-plan` — plan generation form:**
+- `ReactiveForm` with:
+  - `weekStartDate: FormControl` — `MatDatepicker`, defaults to next Monday (compute on init)
+  - `tagQuotas: FormArray` — each row is a `FormGroup { tagId: FormControl, count: FormControl }`
+- Tags loaded via `TagService.getAll()` for the MatSelect options
+- "+ Add Tag Quota" button appends a new row; "✕" removes the row
+- Submit → POST `GenerateMealPlanDto` to `/api/mealplans/generate` → navigate to `/planner`
+- `GenerateMealPlanDto` shape: `{ userId, weekStartDate: string (ISO), tagQuotas: [{tagId, count}] }`
+
+**Key technical notes:**
+- `DayOfWeekEnum`: Monday=0 … Sunday=6 — index matches the 7 days array `['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']`
+- Backend `generate` always assigns `MealType.Dinner` (0=Breakfast, 1=Lunch, 2=Dinner) — display meal type label from enum
+- Finding current Monday (for plan lookup and date default):
+  ```ts
+  const today = new Date();
+  const day = today.getDay(); // 0=Sun
+  const offset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + offset);
+  monday.setHours(0, 0, 0, 0);
+  ```
+- Compare `weekStartDate` from API using `.toDateString()` — backend returns UTC ISO, parse with `new Date(plan.weekStartDate)`
+- `generate-plan` needs `MatNativeDateModule` (or `provideNativeDateAdapter`) + `MatDatepickerModule` in its `imports[]`
+- Send `weekStartDate` as ISO string: `date.toISOString()`
+
+**Verify:** `/planner` shows empty state → click Generate → fill form → submit → redirected back to `/planner` showing 7-day grid with recipe names.
 
 ### Files Created Per Phase
 

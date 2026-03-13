@@ -1,0 +1,90 @@
+@if (recipe()) {
+  <div class="page-container">
+
+    <div class="detail-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="backToRecipes()" title="Back to recipes" routerLink="/recipes">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">{{ recipe()!.name }}</h1>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="edit()">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <button mat-stroked-button color="warn" (click)="delete()">
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Meta row -->
+    <div class="info-row">
+      <span class="meta-item">
+        <mat-icon class="meta-icon">schedule</mat-icon> Prep {{ recipe()!.prepTimeMinutes }}m
+      </span>
+      <span class="meta-item">
+        <mat-icon class="meta-icon">local_fire_department</mat-icon> Cook {{ recipe()!.cookTimeMinutes }}m
+      </span>
+      <span class="meta-item">
+        <mat-icon class="meta-icon">people</mat-icon> Serves {{ recipe()!.servingSize }}
+      </span>
+      @if (daysSinceCooked === null) {
+        <span class="badge badge-grey">Never cooked</span>
+      } @else if (daysSinceCooked === 0) {
+        <span class="badge badge-accent">Cooked today</span>
+      } @else {
+        <span class="badge badge-accent">Last cooked {{ daysSinceCooked }}d ago</span>
+      }
+    </div>
+
+    <!-- Tags -->
+    @if (recipe()!.tags?.length) {
+      <div class="tags-row">
+        @for (tag of recipe()!.tags; track tag.id) {
+          <span class="tag-chip">{{ tag.name }}</span>
+        }
+      </div>
+    }
+
+    <!-- Description -->
+    @if (recipe()!.description) {
+      <div class="card section-card">
+        <h3 class="section-label">Description</h3>
+        <p>{{ recipe()!.description }}</p>
+      </div>
+    }
+
+    <!-- Ingredients -->
+    @if (recipe()!.ingredients?.length) {
+      <div class="card section-card">
+        <h3 class="section-label">Ingredients</h3>
+        <ul class="ingredient-list">
+          @for (ing of recipe()!.ingredients; track ing.id) {
+            <li>{{ ing.quantity }} {{ ing.unit }} {{ ing.name }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Instructions -->
+    @if (recipe()!.instructions) {
+      <div class="card section-card">
+        <h3 class="section-label">Instructions</h3>
+        <p class="instructions">{{ recipe()!.instructions }}</p>
+      </div>
+    }
+
+    <!-- Cook stats + Log Cook -->
+    <div class="cook-footer">
+      <span class="cook-count">
+        <mat-icon>restaurant</mat-icon> Cooked {{ recipe()!.cookCount }} time{{ recipe()!.cookCount !== 1 ? 's' : '' }}
+      </span>
+      <button mat-raised-button class="btn-accent" (click)="logCook()" [disabled]="loggingCook()">
+        <mat-icon>check_circle</mat-icon>
+        {{ loggingCook() ? 'Logging…' : 'Log Cook' }}
+      </button>
+    </div>
+
+  </div>
+}

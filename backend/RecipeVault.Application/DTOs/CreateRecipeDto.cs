@@ -11,4 +11,5 @@ public class CreateRecipeDto
     public string? Instructions { get; set; }
     public string? ImageUrl { get; set; }
     public List<CreateIngredientDto> Ingredients { get; set; } = new();
+    public List<int> TagIds { get; set; } = new();
 }

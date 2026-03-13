@@ -1,0 +1,104 @@
+<div class="page-container">
+  <h1 class="page-title">{{ isEditMode() ? 'Edit Recipe' : 'New Recipe' }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="card form-card">
+
+    <!-- Basic Info -->
+    <section class="form-section">
+      <h3 class="section-title">Basic Info</h3>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Recipe Name *</mat-label>
+        <input matInput formControlName="name" />
+        @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+          <mat-error>Name is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3"></textarea>
+      </mat-form-field>
+
+      <div class="inline-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Serving Size</mat-label>
+          <input matInput type="number" formControlName="servingSize" min="1" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Prep Time (min)</mat-label>
+          <input matInput type="number" formControlName="prepTimeMinutes" min="0" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Cook Time (min)</mat-label>
+          <input matInput type="number" formControlName="cookTimeMinutes" min="0" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Instructions</mat-label>
+        <textarea matInput formControlName="instructions" rows="5"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Image URL</mat-label>
+        <input matInput formControlName="imageUrl" placeholder="https://..." />
+      </mat-form-field>
+    </section>
+
+    <!-- Tags -->
+    <section class="form-section">
+      <h3 class="section-title">Tags</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Select Tags</mat-label>
+        <mat-select formControlName="tagIds" multiple>
+          @for (tag of allTags(); track tag.id) {
+            <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </section>
+
+    <!-- Ingredients -->
+    <section class="form-section">
+      <h3 class="section-title">Ingredients</h3>
+
+      <div formArrayName="ingredients">
+        @for (ctrl of ingredients.controls; track $index) {
+          <div [formGroupName]="$index" class="ingredient-row">
+            <mat-form-field appearance="outline" class="ing-name">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="ing-qty">
+              <mat-label>Qty</mat-label>
+              <input matInput type="number" formControlName="quantity" min="0" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="ing-unit">
+              <mat-label>Unit</mat-label>
+              <input matInput formControlName="unit" placeholder="g, ml, cup…" />
+            </mat-form-field>
+            <mat-checkbox formControlName="isStaple" class="ing-staple">Staple</mat-checkbox>
+            <button mat-icon-button type="button" color="warn" (click)="removeIngredient($index)"
+                    [disabled]="ingredients.length === 1" title="Remove">
+              <mat-icon>remove_circle_outline</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <button mat-button type="button" class="add-ingredient-btn" (click)="addIngredient()">
+        <mat-icon>add</mat-icon> Add Ingredient
+      </button>
+    </section>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button mat-button type="button" (click)="cancel()">Cancel</button>
+      <button mat-raised-button class="btn-accent" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : 'Save Recipe' }}
+      </button>
+    </div>
+
+  </form>
+</div>
