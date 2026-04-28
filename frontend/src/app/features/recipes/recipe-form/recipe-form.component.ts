@@ -150,7 +150,7 @@ export class RecipeFormComponent implements OnInit {
     request$.subscribe({
       next: () => {
         this.saving.set(false);
-        this.router.navigate(['/recipes']);
+        this.router.navigate(['/app/recipes']);
       },
       error: () => {
         this.saving.set(false);
@@ -160,6 +160,6 @@ export class RecipeFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/recipes']);
+    this.router.navigate(['/app/recipes']);
   }
 }

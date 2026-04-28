@@ -1,6 +1,6 @@
 # JustCook — Project Reference
 
-Full-stack meal planning app. **Backend is feature-complete.** Frontend is Angular 19 — scaffold + navbar done, feature components in progress.
+Full-stack meal planning app. **Backend is feature-complete. Frontend Phases 0–3 complete.**
 
 ---
 
@@ -149,7 +149,7 @@ frontend/                 Angular 19 standalone, SCSS, Angular Material
 
 **Angular 19** — standalone components, SCSS, Angular Material
 
-**Phase 0 (routing shell) + Phase 1 (Tags) + Phase 2 (Recipes) complete. Phase 3 (Meal Planner) next.**
+**Phases 0–3 complete.**
 
 ```
 frontend/src/app/
@@ -157,10 +157,13 @@ frontend/src/app/
 │   ├── models/
 │   │   ├── tag.model.ts          ✅ TagDto, CreateTagDto, UpdateTagDto
 │   │   ├── ingredient.model.ts   ✅ IngredientDto, CreateIngredientDto
-│   │   └── recipe.model.ts       ✅ RecipeDto, CreateRecipeDto, UpdateRecipeDto
+│   │   ├── recipe.model.ts       ✅ RecipeDto, CreateRecipeDto, UpdateRecipeDto
+│   │   ├── enums.ts              ✅ DayOfWeekEnum, MealType
+│   │   └── meal-plan.model.ts    ✅ MealPlanDto, MealPlanItemDto, GenerateMealPlanDto, TagQuotaDto
 │   └── services/
 │       ├── tag.service.ts        ✅ getAll, create, update, delete
-│       └── recipe.service.ts     ✅ getAll, getById, create, update, delete, logCook, getRotationSuggestions
+│       ├── recipe.service.ts     ✅ getAll, getById, create, update, delete, logCook, getRotationSuggestions
+│       └── meal-plan.service.ts  ✅ getAll, getById, generate, delete
 ├── features/
 │   ├── tags/
 │   │   └── tag-list/             ✅ Material table, inline edit, snackbar
@@ -169,8 +172,8 @@ frontend/src/app/
 │   │   ├── recipe-form/          ✅ ReactiveForm, FormArray ingredients, multi-select tags
 │   │   └── recipe-detail/        ✅ full view, Log Cook button
 │   └── meal-planner/
-│       ├── planner-home/         🔲 stub only — needs full implementation
-│       └── generate-plan/        🔲 stub only — needs full implementation
+│       ├── planner-home/         ✅ 7-day grid, delete plan, empty state
+│       └── generate-plan/        ✅ datepicker, tag quota FormArray, generate + navigate
 ├── shared/
 │   ├── components/
 │   │   └── recipe-card/          ✅ name, times, servings, last-cooked badge, tag chips, buttons
@@ -278,12 +281,12 @@ Also add `provideNativeDateAdapter()` to `app.config.ts` (required for MatDatepi
 - `features/meal-planner/generate-plan/generate-plan.component.scss` — NEW
 
 **`planner-home` — weekly plan view:**
-- On init: call `getAll(userId)` → find plan where `weekStartDate` date-matches current Monday
+- On init: call `getAll(userId)` → display `plans[0]` (most recent plan, backend sorts by descending `WeekStartDate`)
 - 7-day grid (one card per day Mon–Sun): show recipe name from `items` where `item.dayOfWeek === index`
 - Empty day slots show "—" placeholder
-- Empty state (no plan for this week): centred message + "Generate Plan" `[routerLink]="['/planner/generate']"` button
+- Empty state (no plan yet): centred message + "Generate Plan" `[routerLink]="['/planner/generate']"` button
 - "Delete Plan" button (bottom of page) when a plan exists → calls `delete(plan.id)` → clears state
-- Use `signal<MealPlanDto | null>` for the loaded plan and `signal(false)` for loading state
+- Use `signal<MealPlanDto | null>` for the loaded plan and `signal(false)` for loading/deleting state
 
 **`generate-plan` — plan generation form:**
 - `ReactiveForm` with:
@@ -296,32 +299,30 @@ Also add `provideNativeDateAdapter()` to `app.config.ts` (required for MatDatepi
 
 **Key technical notes:**
 - `DayOfWeekEnum`: Monday=0 … Sunday=6 — index matches the 7 days array `['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']`
-- Backend `generate` always assigns `MealType.Dinner` (0=Breakfast, 1=Lunch, 2=Dinner) — display meal type label from enum
-- Finding current Monday (for plan lookup and date default):
+- Backend `generate` always assigns `MealType.Dinner` — frontend does not need to send meal type
+- `planner-home` uses `plans[0]` not date-matching — avoids mismatches when the generated plan is for a future week
+- Next Monday calculation (for `weekStartDate` default in generate-plan):
   ```ts
   const today = new Date();
   const day = today.getDay(); // 0=Sun
-  const offset = day === 0 ? -6 : 1 - day;
+  const offset = day === 0 ? 1 : 8 - day;
   const monday = new Date(today);
   monday.setDate(today.getDate() + offset);
   monday.setHours(0, 0, 0, 0);
   ```
-- Compare `weekStartDate` from API using `.toDateString()` — backend returns UTC ISO, parse with `new Date(plan.weekStartDate)`
-- `generate-plan` needs `MatNativeDateModule` (or `provideNativeDateAdapter`) + `MatDatepickerModule` in its `imports[]`
+- `generate-plan` needs `MatDatepickerModule` in its `imports[]` (adapter provided globally via `provideNativeDateAdapter`)
 - Send `weekStartDate` as ISO string: `date.toISOString()`
 
 **Verify:** `/planner` shows empty state → click Generate → fill form → submit → redirected back to `/planner` showing 7-day grid with recipe names.
 
 ### Files Created Per Phase
 
-| Phase | Files | Count |
+| Phase | Files | Status |
 |---|---|---|
-| 0 | `app.routes.ts` (replace), `app.config.ts` (add provider) | 2 modified |
-| 1 | tag.model, tag.service, tag-list (×3) | 5 new |
-| 2 | ingredient.model, recipe.model, recipe.service, recipe-card (×3), recipe-list (×3), recipe-form (×3), recipe-detail (×3) | 14 new |
-| 3 | enums, meal-plan.model, meal-plan.service, planner-home (×3), generate-plan (×3) | 11 new |
-
-**Total: 30 files**
+| 0 | `app.routes.ts` (replace), `app.config.ts` (add provider) | ✅ done |
+| 1 | tag.model, tag.service, tag-list (×3) | ✅ done |
+| 2 | ingredient.model, recipe.model, recipe.service, recipe-card (×3), recipe-list (×3), recipe-form (×3), recipe-detail (×3) | ✅ done |
+| 3 | enums, meal-plan.model, meal-plan.service, planner-home (×3), generate-plan (×3) | ✅ done |
 
 ### Angular Technical Constraints
 - Standalone components — every component declares its own `imports: []`
@@ -344,6 +345,8 @@ Also add `provideNativeDateAdapter()` to `app.config.ts` (required for MatDatepi
 | MealPlan-API | Meal plan generation (merged) |
 | EF-Core-Foundation | Initial EF Core setup (merged) |
 | APIfolderstucture | Clean Architecture folder setup (merged) |
+| Implementing-Recipe-Feature | Phase 1+2 frontend — Tags + Recipes (merged) |
+| MealPrep-Feature | Phase 3 frontend — Meal Planner (active) |
 
 **Working branch convention:** `kebab-case` feature branches, PR into main.
 

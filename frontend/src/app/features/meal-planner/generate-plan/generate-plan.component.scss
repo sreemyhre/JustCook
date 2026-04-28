@@ -1,0 +1,38 @@
+.generate-form {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width { width: 100%; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 { margin: 0; }
+  .hint { font-size: 0.8rem; color: var(--mat-sys-outline); }
+}
+
+.quota-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quota-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .tag-field { flex: 1; }
+  .count-field { width: 100px; }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}

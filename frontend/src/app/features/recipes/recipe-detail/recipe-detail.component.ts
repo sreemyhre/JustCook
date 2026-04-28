@@ -34,12 +34,12 @@ export class RecipeDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) { this.router.navigate(['/recipes']); return; }
+    if (!id) { this.router.navigate(['/app/recipes']); return; }
     this.recipeService.getById(+id).subscribe({
       next: r => this.recipe.set(r),
       error: () => {
         this.snackBar.open('Recipe not found', 'Close', { duration: 3000 });
-        this.router.navigate(['/recipes']);
+        this.router.navigate(['/app/recipes']);
       }
     });
   }
@@ -68,11 +68,11 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   backToRecipes(): void {
-    this.router.navigate(['/recipes']);
+    this.router.navigate(['/app/recipes']);
   }
 
   edit(): void {
-    this.router.navigate(['/recipes', this.recipe()!.id, 'edit']);
+    this.router.navigate(['/app/recipes', this.recipe()!.id, 'edit']);
   }
 
   delete(): void {
@@ -80,7 +80,7 @@ export class RecipeDetailComponent implements OnInit {
     this.recipeService.delete(this.recipe()!.id).subscribe({
       next: () => {
         this.snackBar.open('Recipe deleted', 'Close', { duration: 3000 });
-        this.router.navigate(['/recipes']);
+        this.router.navigate(['/app/recipes']);
       },
       error: () => this.snackBar.open('Failed to delete recipe', 'Close', { duration: 3000 })
     });

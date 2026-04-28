@@ -1,0 +1,148 @@
+.about-hero {
+  background: var(--primary);
+  padding: 32px 24px;
+}
+
+.hero-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.avatar-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.developer-name {
+  color: var(--text-light);
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.hero-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  @media (max-width: 560px) {
+    justify-content: center;
+  }
+}
+
+.about-body {
+  padding: 40px 24px 80px;
+  background: var(--bg);
+  min-height: calc(100vh - 220px);
+}
+
+.about-card {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 36px 40px;
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 28px 0 12px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  p {
+    color: #444;
+    line-height: 1.75;
+    margin: 0 0 14px;
+  }
+}
+
+.stack-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.stack-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+.stack-label {
+  min-width: 130px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.stack-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.contact-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition: opacity 0.2s;
+
+  .brand-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .material-icons {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    opacity: 0.7;
+  }
+}

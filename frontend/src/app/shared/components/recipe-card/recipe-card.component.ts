@@ -26,12 +26,12 @@ export class RecipeCardComponent {
   }
 
   goToDetail(): void {
-    this.router.navigate(['/recipes', this.recipe.id]);
+    this.router.navigate(['/app/recipes', this.recipe.id]);
   }
 
   goToEdit(event: MouseEvent): void {
     event.stopPropagation();
-    this.router.navigate(['/recipes', this.recipe.id, 'edit']);
+    this.router.navigate(['/app/recipes', this.recipe.id, 'edit']);
   }
 
   onDelete(event: MouseEvent): void {
