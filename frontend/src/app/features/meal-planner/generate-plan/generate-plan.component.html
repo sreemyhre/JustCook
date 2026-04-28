@@ -1,55 +1,112 @@
 <div class="page-container">
-  <h1 class="page-title">Generate Weekly Meal Plan</h1>
+  <h1 class="page-title">Meal Planner</h1>
 
   <form [formGroup]="form" (ngSubmit)="generate()" class="generate-form">
+    <div class="date-row">
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Week Start Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="weekStartDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+        @if (form.get('weekStartDate')?.invalid && form.get('weekStartDate')?.touched) {
+          <mat-error>Week start date is required.</mat-error>
+        }
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Week Start Date</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="weekStartDate" />
-      <mat-datepicker-toggle matIconSuffix [for]="picker" />
-      <mat-datepicker #picker />
-      @if (form.get('weekStartDate')?.invalid && form.get('weekStartDate')?.touched) {
-        <mat-error>Week start date is required.</mat-error>
-      }
-    </mat-form-field>
-
-    <div class="section-header">
-      <h3>Tag Quotas <span class="hint">(optional)</span></h3>
-      <button mat-stroked-button type="button" (click)="addQuotaRow()">
-        <mat-icon>add</mat-icon> Add Tag Quota
-      </button>
-    </div>
-
-    <div formArrayName="tagQuotas" class="quota-list">
-      @for (ctrl of tagQuotas.controls; track $index) {
-        <div [formGroup]="asFormGroup(ctrl)" class="quota-row">
-          <mat-form-field appearance="outline" class="tag-field">
-            <mat-label>Tag</mat-label>
-            <mat-select formControlName="tagId">
-              @for (tag of allTags(); track tag.id) {
-                <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="count-field">
-            <mat-label>Count</mat-label>
-            <input matInput type="number" formControlName="count" min="1" />
-          </mat-form-field>
-
-          <button mat-icon-button type="button" color="warn" (click)="removeQuotaRow($index)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      }
-    </div>
-
-    <div class="form-actions">
-      <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="generating()">
+      <button mat-raised-button color="primary" type="submit" [disabled]="generating()" class="generate-btn">
+        <mat-icon>auto_awesome</mat-icon>
         {{ generating() ? 'Generating…' : 'Generate Plan' }}
       </button>
     </div>
-
   </form>
+
+  <div class="plans-section">
+
+    <div class="main-layout" cdkDropListGroup>
+
+      <!-- Left recipe panel — always visible -->
+      <div class="recipe-panel"
+           cdkDropList
+           [cdkDropListData]="filteredRecipes()"
+           [cdkDropListEnterPredicate]="noReturn">
+        <div class="recipe-list-header">
+          <p class="panel-title">Recipes</p>
+          <mat-form-field appearance="outline" class="search-input">
+            <mat-label>Search recipes</mat-label>
+            <input matInput
+                   [value]="searchText()"
+                   (input)="searchText.set($any($event.target).value)"
+                   placeholder="Type to search..." />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+        @for (recipe of filteredRecipes(); track recipe.id) {
+          <div class="recipe-drag-item"
+               cdkDrag
+               [cdkDragData]="recipe"
+               [cdkDragDisabled]="!editMode()">
+            <span class="recipe-drag-name">{{ recipe.name }}</span>
+            <span class="recipe-drag-date">{{ formatLastCooked(recipe.lastCookedDate) }}</span>
+            <div *cdkDragPreview class="drag-preview">{{ recipe.name }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Right area -->
+      <div class="grid-area">
+
+        @if (!currentPlan()) {
+          <div class="empty-state">
+            <mat-icon class="empty-icon">calendar_today</mat-icon>
+            <p>No meal plans yet. Generate your first week above!</p>
+          </div>
+        }
+
+        @if (currentPlan()) {
+          <div class="week-grid">
+            @for (slot of (editMode() ? editGrid() : weekGrid()); track slot.dayName; let i = $index) {
+              <div class="card day-card"
+                   [class.drop-target]="editMode()"
+                   cdkDropList
+                   (cdkDropListDropped)="onRecipeDrop($event, i)">
+                <div class="day-label">{{ slot.dayName }}</div>
+                @if (slot.item) {
+                  <div class="recipe-name">{{ slot.item.recipeName }}</div>
+                } @else {
+                  <div class="no-recipe">
+                    <mat-icon>{{ editMode() ? 'add_circle_outline' : 'no_meals' }}</mat-icon>
+                    <span>{{ editMode() ? 'Drop here' : 'No recipe' }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="plan-actions">
+            @if (isDraft()) {
+              <span class="draft-badge">
+                <mat-icon>pending</mat-icon> Unsaved preview
+              </span>
+            }
+            <button mat-stroked-button (click)="toggleEdit()" [class.active-edit]="editMode()">
+              <mat-icon>{{ editMode() ? 'close' : 'edit' }}</mat-icon>
+              {{ editMode() ? 'Cancel Edit' : 'Edit' }}
+            </button>
+            @if (isDraft() || editMode()) {
+              <button mat-raised-button color="primary" (click)="savePlan()" [disabled]="saving()">
+                <mat-icon>save</mat-icon>
+                {{ saving() ? 'Saving…' : 'Save Plan' }}
+              </button>
+            }
+            <button mat-stroked-button (click)="regenerate()" [disabled]="regenerating()">
+              <mat-icon>refresh</mat-icon>
+              {{ regenerating() ? 'Regenerating…' : 'Generate Another Plan' }}
+            </button>
+          </div>
+        }
+
+      </div>
+    </div>
+
+  </div>
 </div>

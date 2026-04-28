@@ -62,12 +62,7 @@ export const routes: Routes = [
           import('./features/recipes/recipe-detail/recipe-detail.component')
             .then(m => m.RecipeDetailComponent)
       },
-      {
-        path: 'planner',
-        loadComponent: () =>
-          import('./features/meal-planner/planner-home/planner-home.component')
-            .then(m => m.PlannerHomeComponent)
-      },
+      { path: 'planner', redirectTo: 'planner/generate', pathMatch: 'full' },
       {
         path: 'planner/generate',
         loadComponent: () =>
