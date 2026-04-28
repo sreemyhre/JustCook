@@ -1,0 +1,55 @@
+<div class="page-container">
+  <h1 class="page-title">Generate Weekly Meal Plan</h1>
+
+  <form [formGroup]="form" (ngSubmit)="generate()" class="generate-form">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Week Start Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="weekStartDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      @if (form.get('weekStartDate')?.invalid && form.get('weekStartDate')?.touched) {
+        <mat-error>Week start date is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="section-header">
+      <h3>Tag Quotas <span class="hint">(optional)</span></h3>
+      <button mat-stroked-button type="button" (click)="addQuotaRow()">
+        <mat-icon>add</mat-icon> Add Tag Quota
+      </button>
+    </div>
+
+    <div formArrayName="tagQuotas" class="quota-list">
+      @for (ctrl of tagQuotas.controls; track $index) {
+        <div [formGroup]="asFormGroup(ctrl)" class="quota-row">
+          <mat-form-field appearance="outline" class="tag-field">
+            <mat-label>Tag</mat-label>
+            <mat-select formControlName="tagId">
+              @for (tag of allTags(); track tag.id) {
+                <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="count-field">
+            <mat-label>Count</mat-label>
+            <input matInput type="number" formControlName="count" min="1" />
+          </mat-form-field>
+
+          <button mat-icon-button type="button" color="warn" (click)="removeQuotaRow($index)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="generating()">
+        {{ generating() ? 'Generating…' : 'Generate Plan' }}
+      </button>
+    </div>
+
+  </form>
+</div>

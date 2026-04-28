@@ -5,7 +5,7 @@
   justify-content: space-between;
   background: var(--primary);
   padding: 0 24px;
-  height: 60px;
+  height: 68px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -19,19 +19,20 @@
 }
 
 .navbar-logo {
-  font-size: 1.6rem;
+  font-size: 2.2rem;
 }
 
 .navbar-title {
   color: var(--text-light);
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 2.0rem;
+  font-weight: 800;
   letter-spacing: 0.5px;
 }
 
 .navbar-tagline {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 0.78rem;
+  color:  rgb(240, 212, 212);
+  font-size: 1.0rem;
+  font-weight: 500;
   margin-left: 4px;
   display: none;
 
@@ -49,7 +50,7 @@
     text-decoration: none;
     padding: 8px 16px;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 1.3rem;
     font-weight: 500;
     transition: all 0.2s;
 
