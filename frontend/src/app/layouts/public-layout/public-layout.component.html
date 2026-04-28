@@ -1,0 +1,17 @@
+<nav class="public-navbar">
+  <div class="navbar-brand">
+    <a routerLink="/" class="brand-link">
+      <span class="navbar-logo">🍲</span>
+      <span class="navbar-title">JustCook</span>
+    </a>
+  </div>
+  <div class="navbar-links">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+    <a routerLink="/about" routerLinkActive="active">About</a>
+    <a routerLink="/app" class="nav-login">Login</a>
+  </div>
+</nav>
+
+<main class="public-content">
+  <router-outlet />
+</main>
