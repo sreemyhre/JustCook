@@ -116,6 +116,56 @@ public class MealPlanService : IMealPlanService
         return _mapper.Map<MealPlanDto>(result!);
     }
 
+    public async Task<MealPlanDto> PreviewMealPlanAsync(GenerateMealPlanDto dto)
+    {
+        var allRecipes = (await _mealPlanRepository.GetUserRecipesWithTagsAsync(dto.UserId)).ToList();
+        var days = Enum.GetValues<DayOfWeekEnum>();
+        var selectedRecipes = new List<Recipe>();
+        var usedRecipeIds = new HashSet<int>();
+
+        foreach (var quota in dto.TagQuotas)
+        {
+            var candidates = allRecipes
+                .Where(r => r.RecipeTags.Any(rt => rt.TagId == quota.TagId) && !usedRecipeIds.Contains(r.Id))
+                .OrderByDescending(CalculateScore)
+                .Take(quota.Count)
+                .ToList();
+            foreach (var recipe in candidates) usedRecipeIds.Add(recipe.Id);
+            selectedRecipes.AddRange(candidates);
+        }
+
+        int remaining = 7 - selectedRecipes.Count;
+        if (remaining > 0)
+        {
+            var autoFill = allRecipes
+                .Where(r => !usedRecipeIds.Contains(r.Id))
+                .OrderByDescending(CalculateScore)
+                .Take(remaining)
+                .ToList();
+            selectedRecipes.AddRange(autoFill);
+        }
+
+        var items = selectedRecipes
+            .Take(7)
+            .Select((recipe, index) => new MealPlanItemDto
+            {
+                Id = 0,
+                RecipeId = recipe.Id,
+                RecipeName = recipe.Name,
+                DayOfWeek = days[index],
+                MealType = MealType.Dinner
+            })
+            .ToList();
+
+        return new MealPlanDto
+        {
+            Id = 0,
+            UserId = dto.UserId,
+            WeekStartDate = dto.WeekStartDate,
+            Items = items
+        };
+    }
+
     /// <summary>
     /// Rotation scoring algorithm from the README:
     /// - Recency score: max after 14 days since last cooked

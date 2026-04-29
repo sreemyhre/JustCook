@@ -59,4 +59,11 @@ public class MealPlansController : ControllerBase
         var plan = await _mealPlanService.GenerateMealPlanAsync(dto);
         return CreatedAtAction(nameof(GetMealPlan), new { id = plan.Id }, plan);
     }
+
+    [HttpPost("preview")]
+    public async Task<ActionResult<MealPlanDto>> PreviewMealPlan(GenerateMealPlanDto dto)
+    {
+        var plan = await _mealPlanService.PreviewMealPlanAsync(dto);
+        return Ok(plan);
+    }
 }

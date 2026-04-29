@@ -10,4 +10,5 @@ public interface IMealPlanService
     Task<MealPlanDto?> UpdateMealPlanAsync(int id, CreateMealPlanDto dto);
     Task<bool> DeleteMealPlanAsync(int id);
     Task<MealPlanDto> GenerateMealPlanAsync(GenerateMealPlanDto dto);
+    Task<MealPlanDto> PreviewMealPlanAsync(GenerateMealPlanDto dto);
 }

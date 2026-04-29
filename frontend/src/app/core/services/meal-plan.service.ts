@@ -13,8 +13,16 @@ export class MealPlanService {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/mealplans`;
 
+  preview(dto: GenerateMealPlanRequest): Observable<MealPlanDto> {
+    return this.http.post<MealPlanDto>(`${this.base}/preview`, dto);
+  }
+
   generate(dto: GenerateMealPlanRequest): Observable<MealPlanDto> {
     return this.http.post<MealPlanDto>(`${this.base}/generate`, dto);
+  }
+
+  create(dto: { userId: number; weekStartDate: string; items: { recipeId: number; dayOfWeek: number }[] }): Observable<MealPlanDto> {
+    return this.http.post<MealPlanDto>(this.base, dto);
   }
 
   getAll(userId = environment.defaultUserId): Observable<MealPlanDto[]> {
@@ -25,6 +33,10 @@ export class MealPlanService {
 
   getById(id: number): Observable<MealPlanDto> {
     return this.http.get<MealPlanDto>(`${this.base}/${id}`);
+  }
+
+  update(id: number, dto: { userId: number; weekStartDate: string; items: { recipeId: number; dayOfWeek: number }[] }): Observable<MealPlanDto> {
+    return this.http.put<MealPlanDto>(`${this.base}/${id}`, dto);
   }
 
   delete(id: number): Observable<void> {
