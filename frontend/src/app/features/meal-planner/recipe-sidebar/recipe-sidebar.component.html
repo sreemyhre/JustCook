@@ -1,0 +1,48 @@
+<div class="sidebar">
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="generate-form">
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Week to generate</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="weekStartDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      @if (form.get('weekStartDate')?.invalid && form.get('weekStartDate')?.touched) {
+        <mat-error>Date is required.</mat-error>
+      }
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="generating" class="generate-btn">
+      <mat-icon>auto_awesome</mat-icon>
+      {{ generating ? 'Generating…' : 'Generate Plan' }}
+    </button>
+  </form>
+
+  <div class="sidebar-divider"></div>
+
+  <p class="panel-title">Recipes</p>
+
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search</mat-label>
+    <input matInput
+           [value]="searchText()"
+           (input)="searchText.set($any($event.target).value)"
+           placeholder="Type to search..." />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <div class="recipe-list"
+       cdkDropList
+       [cdkDropListData]="filteredRecipes"
+       [cdkDropListEnterPredicate]="noReturn">
+    @for (recipe of filteredRecipes; track recipe.id) {
+      <div class="recipe-drag-item"
+           cdkDrag
+           [cdkDragData]="recipe"
+           [cdkDragDisabled]="!editMode">
+        <span class="recipe-name">{{ recipe.name }}</span>
+        <span class="recipe-date">{{ formatLastCooked(recipe.lastCookedDate) }}</span>
+        <div *cdkDragPreview class="drag-preview">{{ recipe.name }}</div>
+      </div>
+    }
+  </div>
+
+</div>

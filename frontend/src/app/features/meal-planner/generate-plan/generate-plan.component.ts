@@ -1,243 +1,153 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Subject, switchMap } from 'rxjs';
 
-import { MealPlanService, MealPlanDto, MealPlanItemDto } from '../../../core/services/meal-plan.service';
+import { MealPlanService, MealPlanDto } from '../../../core/services/meal-plan.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { RecipeDto } from '../../../core/models/recipe.model';
-import { TagService } from '../../../core/services/tag.service';
-import { TagDto } from '../../../core/models/tag.model';
 import { environment } from '../../../../environments/environment';
 
-const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+import { DropEvent } from '../planner.types';
+import { buildWeeksForMonth, isFutureWeek, normalizeToMonday, startOfMonth, toWeekKey } from '../planner.utils';
+import { RecipeSidebarComponent } from '../recipe-sidebar/recipe-sidebar.component';
+import { PlannerCalendarComponent } from '../planner-calendar/planner-calendar.component';
 
 @Component({
   selector: 'app-generate-plan',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     DragDropModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    RecipeSidebarComponent,
+    PlannerCalendarComponent
   ],
   templateUrl: './generate-plan.component.html',
   styleUrl: './generate-plan.component.scss'
 })
 export class GeneratePlanComponent implements OnInit {
-  private fb = inject(FormBuilder);
   private mealPlanService = inject(MealPlanService);
   private recipeService = inject(RecipeService);
-  private tagService = inject(TagService);
   private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
-  allTags = signal<TagDto[]>([]);
+  viewMonth = signal<Date>(startOfMonth(new Date()));
+  editMode = signal(false);
+  plans = signal<MealPlanDto[]>([]);
   allRecipes = signal<RecipeDto[]>([]);
   generating = signal(false);
-  saving = signal(false);
-  regenerating = signal(false);
-  editMode = signal(false);
-  searchText = signal('');
+  savingDay = signal<string | null>(null);
 
-  filteredRecipes = computed(() => {
-    const query = this.searchText().toLowerCase().trim();
-    if (!query) return this.allRecipes();
-    return this.allRecipes().filter(recipe =>
-      recipe.name.toLowerCase().includes(query)
-    );
-  });
+  calendarWeeks = computed(() => buildWeeksForMonth(this.viewMonth(), this.plans()));
 
-  form: FormGroup = this.fb.group({
-    weekStartDate: [this.getNextMonday(), Validators.required],
-    tagQuotas: this.fb.array([])
-  });
+  private readonly reload$ = new Subject<void>();
 
-  get tagQuotas(): FormArray {
-    return this.form.get('tagQuotas') as FormArray;
+  constructor() {
+    this.reload$
+      .pipe(
+        switchMap(() => this.mealPlanService.getAll()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: plans => this.plans.set(plans),
+        error: () => this.snackBar.open('Failed to load plans.', 'Close', { duration: 3000 })
+      });
   }
 
-  plans = signal<MealPlanDto[]>([]);
-  draftPlan = signal<MealPlanDto | null>(null);
-  editItems = signal<MealPlanItemDto[]>([]);
-
-  // Draft (unsaved preview) takes precedence over the last saved plan
-  currentPlan = computed(() =>
-    this.draftPlan() ??
-    [...this.plans()].sort((a, b) =>
-      new Date(b.weekStartDate).getTime() - new Date(a.weekStartDate).getTime()
-    )[0] ?? null
-  );
-
-  isDraft = computed(() => this.draftPlan() !== null);
-
-  weekGrid = computed(() => {
-    const plan = this.currentPlan();
-    return DAY_NAMES.map((name, index) => ({
-      dayName: name,
-      item: plan?.items.find(i => i.dayOfWeek === index) ?? null
-    }));
-  });
-
-  editGrid = computed(() => {
-    const items = this.editItems();
-    return DAY_NAMES.map((name, index) => ({
-      dayName: name,
-      item: items.find(i => i.dayOfWeek === index) ?? null
-    }));
-  });
-
-  // Prevent recipes from being dropped back into the panel
-  readonly noReturn = () => false;
-
   ngOnInit(): void {
-    this.tagService.getAll().subscribe(tags => this.allTags.set(tags));
     this.recipeService.getAll().subscribe(recipes => this.allRecipes.set(recipes));
     this.loadPlans();
   }
 
-  asFormGroup(ctrl: AbstractControl): FormGroup {
-    return ctrl as FormGroup;
-  }
-
-  formatLastCooked(date: string | null): string {
-    if (!date) return 'Never cooked';
-    const d = new Date(date);
-    const diffDays = Math.floor((Date.now() - d.getTime()) / 86400000);
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-
-  toggleEdit(): void {
-    if (!this.editMode()) {
-      const plan = this.currentPlan();
-      if (!plan) return;
-      this.editItems.set([...plan.items]);
-      this.editMode.set(true);
-    } else {
+  private shiftMonth(delta: -1 | 1): void {
+    const m = this.viewMonth();
+    this.viewMonth.set(new Date(m.getFullYear(), m.getMonth() + delta, 1));
+    if (!this.calendarWeeks().some(w => w.isFuture)) {
       this.editMode.set(false);
     }
   }
 
-  onRecipeDrop(event: CdkDragDrop<RecipeDto[]>, dayOfWeek: number): void {
-    if (event.previousContainer === event.container) return;
-    const recipe: RecipeDto = event.item.data;
-    this.editItems.update(items => [
-      ...items.filter(i => i.dayOfWeek !== dayOfWeek),
-      { id: 0, recipeId: recipe.id, recipeName: recipe.name, dayOfWeek }
-    ]);
+  prevMonth(): void { this.shiftMonth(-1); }
+  nextMonth(): void { this.shiftMonth(1); }
+
+  toggleEdit(): void {
+    this.editMode.update(v => !v);
   }
 
-  generate(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+  generate(rawDate: Date): void {
+    const weekStart = normalizeToMonday(rawDate);
+    const weekKey = toWeekKey(weekStart);
+
+    if (!isFutureWeek(weekStart)) {
+      this.snackBar.open('Please select a future week to generate a plan.', 'Close', { duration: 4000 });
+      return;
+    }
+
+    const existing = this.plans().find(p => toWeekKey(new Date(p.weekStartDate)) === weekKey);
+    if (existing) {
+      this.snackBar.open('A plan already exists for that week.', 'Close', { duration: 4000 });
+      return;
+    }
+
     this.generating.set(true);
-    this.editMode.set(false);
-    const raw = this.form.getRawValue();
-    this.mealPlanService.preview({
+    this.mealPlanService.generate({
       userId: environment.defaultUserId,
-      weekStartDate: (raw.weekStartDate as Date).toISOString(),
-      tagQuotas: raw.tagQuotas
+      weekStartDate: weekStart.toISOString(),
+      tagQuotas: []
     }).subscribe({
-      next: (draft) => {
-        this.draftPlan.set(draft);
+      next: () => {
         this.generating.set(false);
+        this.snackBar.open('Plan generated!', 'Close', { duration: 3000 });
+        this.loadPlans();
+        this.viewMonth.set(startOfMonth(weekStart));
       },
       error: () => {
         this.generating.set(false);
-        this.snackBar.open('Failed to generate plan', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to generate plan.', 'Close', { duration: 3000 });
       }
     });
   }
 
-  savePlan(): void {
-    const plan = this.currentPlan();
-    if (!plan) return;
-    this.saving.set(true);
-    const items = this.editMode() ? this.editItems() : plan.items;
-    const payload = {
-      userId: environment.defaultUserId,
-      weekStartDate: plan.weekStartDate,
-      items: items.map(i => ({ recipeId: i.recipeId, dayOfWeek: i.dayOfWeek }))
-    };
+  onDrop(event: DropEvent): void {
+    const { week, dayOfWeek, recipe } = event;
+    if (!week.isFuture) return;
 
-    const save$ = plan.id === 0
-      ? this.mealPlanService.create(payload)
-      : this.mealPlanService.update(plan.id, payload);
+    this.savingDay.set(`${week.weekKey}-${dayOfWeek}`);
+
+    const updatedItems = [
+      ...week.planItems.filter(i => i.dayOfWeek !== dayOfWeek),
+      { recipeId: recipe.id, dayOfWeek }
+    ];
+
+    const save$ = week.planId
+      ? this.mealPlanService.update(week.planId, {
+          userId: environment.defaultUserId,
+          weekStartDate: week.weekStart.toISOString(),
+          items: updatedItems
+        })
+      : this.mealPlanService.create({
+          userId: environment.defaultUserId,
+          weekStartDate: week.weekStart.toISOString(),
+          items: updatedItems
+        });
 
     save$.subscribe({
       next: () => {
-        this.draftPlan.set(null);
-        this.editMode.set(false);
-        this.saving.set(false);
-        this.snackBar.open('Plan saved!', 'Close', { duration: 3000 });
+        this.savingDay.set(null);
+        this.snackBar.open(`${recipe.name} saved!`, 'Close', { duration: 2000 });
         this.loadPlans();
       },
       error: () => {
-        this.saving.set(false);
-        this.snackBar.open('Failed to save plan', 'Close', { duration: 3000 });
+        this.savingDay.set(null);
+        this.snackBar.open('Failed to save. Please try again.', 'Close', { duration: 3000 });
       }
     });
   }
 
-  regenerate(): void {
-    const plan = this.currentPlan();
-    if (!plan) return;
-    this.regenerating.set(true);
-    this.editMode.set(false);
-
-    const weekStartDate = plan.weekStartDate;
-
-    const doPreview = () => {
-      this.mealPlanService.preview({
-        userId: environment.defaultUserId,
-        weekStartDate,
-        tagQuotas: []
-      }).subscribe({
-        next: (draft) => { this.draftPlan.set(draft); this.regenerating.set(false); },
-        error: () => { this.regenerating.set(false); this.snackBar.open('Failed to regenerate plan', 'Close', { duration: 3000 }); }
-      });
-    };
-
-    // If an existing saved plan is shown, delete it before re-previewing
-    if (plan.id !== 0) {
-      this.mealPlanService.delete(plan.id).subscribe({
-        next: () => { this.plans.update(list => list.filter(p => p.id !== plan.id)); doPreview(); },
-        error: () => { this.regenerating.set(false); this.snackBar.open('Failed to regenerate plan', 'Close', { duration: 3000 }); }
-      });
-    } else {
-      doPreview();
-    }
-  }
-
   loadPlans(): void {
-    this.mealPlanService.getAll().subscribe({
-      next: plans => this.plans.set(plans),
-      error: () => this.snackBar.open('Failed to load meal plans', 'Close', { duration: 3000 })
-    });
-  }
-
-  private getNextMonday(): Date {
-    const today = new Date();
-    const day = today.getDay();
-    const offset = day === 0 ? 1 : 8 - day;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + offset);
-    monday.setHours(0, 0, 0, 0);
-    return monday;
+    this.reload$.next();
   }
 }

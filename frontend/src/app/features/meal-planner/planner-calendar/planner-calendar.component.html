@@ -1,0 +1,74 @@
+<div class="calendar">
+
+  <div class="month-header">
+    <button mat-icon-button (click)="prevMonth.emit()" aria-label="Previous month">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="month-title">{{ formatMonthYear(viewMonth) }}</span>
+    <button mat-icon-button (click)="nextMonth.emit()" aria-label="Next month">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    <span class="header-spacer"></span>
+    <button mat-stroked-button
+            (click)="toggleEdit.emit()"
+            [class.active-edit]="editMode"
+            [disabled]="!hasFutureWeeks && !editMode"
+            [title]="hasFutureWeeks ? '' : 'No future weeks in this month to edit'">
+      <mat-icon>{{ editMode ? 'close' : 'edit' }}</mat-icon>
+      {{ editMode ? 'Cancel Edit' : 'Edit' }}
+    </button>
+  </div>
+
+  <div class="grid-row header-row">
+    <div class="week-label-col"></div>
+    @for (day of dayHeaders; track day) {
+      <div class="day-header-cell">{{ day }}</div>
+    }
+  </div>
+
+  @if (weeks.length === 0) {
+    <div class="no-weeks">No weeks to display for this month.</div>
+  }
+
+  @for (week of weeks; track week.weekKey) {
+    <div class="grid-row week-row"
+         [class.past-week]="week.isPast"
+         [class.current-week]="week.isCurrent"
+         [class.future-week]="week.isFuture">
+
+      <div class="week-label-col">
+        <span class="week-date">{{ week.weekStart | date: 'MMM d' }}</span>
+        @if (week.isCurrent) {
+          <span class="current-badge">This week</span>
+        }
+        @if (week.isFuture && editMode && !week.planId) {
+          <span class="no-plan-hint">No plan</span>
+        }
+      </div>
+
+      @for (day of week.days; track day.dayOfWeek) {
+        <div class="day-cell"
+             [class.today]="isToday(day.date)"
+             [class.out-of-month]="isOutOfMonth(day.date)"
+             [class.drop-active]="editMode && week.isFuture"
+             [class.saving]="isSavingDay(week.weekKey, day.dayOfWeek)"
+             cdkDropList
+             [cdkDropListData]="[]"
+             [cdkDropListDisabled]="!editMode || !week.isFuture"
+             (cdkDropListDropped)="onCellDrop($event, week, day.dayOfWeek)">
+          @if (isSavingDay(week.weekKey, day.dayOfWeek)) {
+            <span class="cell-saving">Saving…</span>
+          } @else if (day.recipeName) {
+            <span class="cell-recipe">{{ day.recipeName }}</span>
+          } @else if (editMode && week.isFuture) {
+            <span class="cell-drop-hint">Drop here</span>
+          } @else {
+            <span class="cell-empty">—</span>
+          }
+        </div>
+      }
+
+    </div>
+  }
+
+</div>
