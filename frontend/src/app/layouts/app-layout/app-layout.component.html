@@ -1,14 +1,38 @@
 <nav class="navbar">
-  <div class="navbar-brand">
-    <span class="navbar-logo">🍲</span>
-    <span class="navbar-title">JustCook</span>
-    <span class="navbar-tagline">Family Meals. No Guesswork.</span>
+
+  <div class="navbar-left">
+    <div class="navbar-brand">
+      <span class="navbar-logo">🍲</span>
+      <span class="navbar-title">JustCook</span>
+    </div>
+
+    <div class="navbar-links">
+      <a routerLink="/app/recipes" routerLinkActive="active">
+        <mat-icon>restaurant</mat-icon>
+        Recipes
+      </a>
+      <a routerLink="/app/tags" routerLinkActive="active">
+        <mat-icon>local_offer</mat-icon>
+        Tags
+      </a>
+      <a routerLink="/app/planner" routerLinkActive="active">
+        <mat-icon>assignment</mat-icon>
+        Plan
+      </a>
+      <a routerLink="/app/shop" routerLinkActive="active">
+        <mat-icon>shopping_cart</mat-icon>
+        Shop
+      </a>
+    </div>
   </div>
-  <div class="navbar-links">
-    <a routerLink="/app/recipes" routerLinkActive="active">Recipes</a>
-    <a routerLink="/app/tags" routerLinkActive="active">Tags</a>
-    <a routerLink="/app/planner" routerLinkActive="active">Weekly Plan</a>
+
+  <div class="navbar-actions">
+    <a routerLink="/app/account" routerLinkActive="active" class="account-link">
+      <mat-icon>person</mat-icon>
+      Account
+    </a>
   </div>
+
 </nav>
 
 <main class="main-content">

@@ -68,6 +68,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/meal-planner/generate-plan/generate-plan.component')
             .then(m => m.GeneratePlanComponent)
+      },
+      {
+        path: 'shop',
+        loadComponent: () =>
+          import('./features/grocery-list/grocery-list.component')
+            .then(m => m.GroceryListComponent)
       }
     ]
   },

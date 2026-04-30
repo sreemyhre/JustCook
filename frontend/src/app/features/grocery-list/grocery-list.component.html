@@ -1,0 +1,110 @@
+<div class="page-container">
+  <h1 class="page-title">Shopping List</h1>
+
+  <div class="main-layout">
+
+    <!-- Left panel: week picker + meal list -->
+    <div class="left-panel">
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Select week</mat-label>
+        <input matInput [matDatepicker]="picker" [formControl]="dateControl"
+               (dateChange)="onDateChange($event.value)" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+      </mat-form-field>
+
+      <div class="week-heading">
+        Week of {{ selectedWeekStart() | date: 'MMM d, y' }}
+      </div>
+
+      @if (!selectedPlan()) {
+        <div class="no-plan">
+          <mat-icon class="no-plan-icon">event_busy</mat-icon>
+          <p>No meal plan for this week.</p>
+          <a mat-stroked-button routerLink="/app/planner">
+            <mat-icon>calendar_today</mat-icon>
+            Plan this week
+          </a>
+        </div>
+      }
+
+      @if (selectedPlan()) {
+        <ul class="meal-list">
+          @for (slot of weekDaySlots(); track slot.dayName) {
+            <li class="meal-item" [class.empty-day]="!slot.recipeName">
+              <span class="day-label">{{ slot.dayName.slice(0, 3) }}</span>
+              <span class="recipe-label">{{ slot.recipeName ?? '—' }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+    </div>
+
+    <!-- Right panel: aggregated ingredients -->
+    <div class="right-panel">
+
+      @if (!selectedPlan()) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">shopping_cart</mat-icon>
+          <p>Select a week with a meal plan to see your shopping list.</p>
+        </div>
+      }
+
+      @if (selectedPlan() && loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="40" />
+          <p>Loading ingredients…</p>
+        </div>
+      }
+
+      @if (selectedPlan() && !loading()) {
+        <div class="ingredients-panel">
+
+          @if (shoppingIngredients().length > 0) {
+            <h2 class="section-title">
+              <mat-icon>shopping_basket</mat-icon>
+              To Buy
+            </h2>
+            <ul class="ingredient-list">
+              @for (ing of shoppingIngredients(); track ing.name + ing.unit) {
+                <li class="ingredient-item">
+                  <mat-icon class="check-icon">check_box_outline_blank</mat-icon>
+                  <span class="ing-name">{{ ing.name }}</span>
+                  <span class="ing-qty">{{ formatQuantity(ing.quantity) }} {{ ing.unit }}</span>
+                </li>
+              }
+            </ul>
+          }
+
+          @if (stapleIngredients().length > 0) {
+            <h2 class="section-title staples-title">
+              <mat-icon>kitchen</mat-icon>
+              Staples
+            </h2>
+            <ul class="ingredient-list staples-list">
+              @for (ing of stapleIngredients(); track ing.name + ing.unit) {
+                <li class="ingredient-item staple">
+                  <mat-icon class="check-icon">check_box_outline_blank</mat-icon>
+                  <span class="ing-name">{{ ing.name }}</span>
+                  <span class="ing-qty">{{ formatQuantity(ing.quantity) }} {{ ing.unit }}</span>
+                </li>
+              }
+            </ul>
+          }
+
+          @if (shoppingIngredients().length === 0 && stapleIngredients().length === 0) {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">sentiment_neutral</mat-icon>
+              <p>No ingredients found for this week's recipes.</p>
+            </div>
+          }
+
+        </div>
+      }
+
+    </div>
+
+  </div>
+</div>
