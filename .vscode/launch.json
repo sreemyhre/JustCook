@@ -9,7 +9,32 @@
             "request": "launch",
             "name": "Launch Chrome against localhost",
             "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\sreem\\OneDrive\\Sree_Myhre_Laptop\\IT Job\\JustCook\\JustCook\\justcook-493ac-firebase-adminsdk-fbsvc-84e450e365.json"
+            }
+        },
+        {
+            "name": "Launch Backend (RecipeVault.API)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/JustCook/backend/RecipeVault.API/bin/Debug/net8.0/RecipeVault.API.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/JustCook/backend/RecipeVault.API",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack (Backend + Chrome)",
+            "configurations": ["Launch Backend (RecipeVault.API)", "Launch Chrome against localhost"]
         }
     ]
 }
