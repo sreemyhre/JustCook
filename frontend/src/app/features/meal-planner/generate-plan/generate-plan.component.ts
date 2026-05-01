@@ -2,11 +2,12 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject, switchMap } from 'rxjs';
 
 import { MealPlanService, MealPlanDto } from '../../../core/services/meal-plan.service';
 import { RecipeService } from '../../../core/services/recipe.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { RecipeDto } from '../../../core/models/recipe.model';
 import { environment } from '../../../../environments/environment';
 
@@ -31,7 +32,7 @@ import { PlannerCalendarComponent } from '../planner-calendar/planner-calendar.c
 export class GeneratePlanComponent implements OnInit {
   private mealPlanService = inject(MealPlanService);
   private recipeService = inject(RecipeService);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
   private destroyRef = inject(DestroyRef);
 
   viewMonth = signal<Date>(startOfMonth(new Date()));
@@ -53,12 +54,14 @@ export class GeneratePlanComponent implements OnInit {
       )
       .subscribe({
         next: plans => this.plans.set(plans),
-        error: () => this.snackBar.open('Failed to load plans.', 'Close', { duration: 3000 })
+        error: () => this.toast.error('Failed to load plans.')
       });
   }
 
   ngOnInit(): void {
-    this.recipeService.getAll().subscribe(recipes => this.allRecipes.set(recipes));
+    this.recipeService.getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(recipes => this.allRecipes.set(recipes));
     this.loadPlans();
   }
 
@@ -82,13 +85,13 @@ export class GeneratePlanComponent implements OnInit {
     const weekKey = toWeekKey(weekStart);
 
     if (!isFutureWeek(weekStart)) {
-      this.snackBar.open('Please select a future week to generate a plan.', 'Close', { duration: 4000 });
+      this.toast.error('Please select a future week to generate a plan.');
       return;
     }
 
     const existing = this.plans().find(p => toWeekKey(new Date(p.weekStartDate)) === weekKey);
     if (existing) {
-      this.snackBar.open('A plan already exists for that week.', 'Close', { duration: 4000 });
+      this.toast.error('A plan already exists for that week.');
       return;
     }
 
@@ -97,16 +100,16 @@ export class GeneratePlanComponent implements OnInit {
       userId: environment.defaultUserId,
       weekStartDate: weekStart.toISOString(),
       tagQuotas: []
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.generating.set(false);
-        this.snackBar.open('Plan generated!', 'Close', { duration: 3000 });
+        this.toast.success('Plan generated!');
         this.loadPlans();
         this.viewMonth.set(startOfMonth(weekStart));
       },
       error: () => {
         this.generating.set(false);
-        this.snackBar.open('Failed to generate plan.', 'Close', { duration: 3000 });
+        this.toast.error('Failed to generate plan.');
       }
     });
   }
@@ -134,15 +137,15 @@ export class GeneratePlanComponent implements OnInit {
           items: updatedItems
         });
 
-    save$.subscribe({
+    save$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.savingDay.set(null);
-        this.snackBar.open(`${recipe.name} saved!`, 'Close', { duration: 2000 });
+        this.toast.success(`${recipe.name} saved!`);
         this.loadPlans();
       },
       error: () => {
         this.savingDay.set(null);
-        this.snackBar.open('Failed to save. Please try again.', 'Close', { duration: 3000 });
+        this.toast.error('Failed to save. Please try again.');
       }
     });
   }

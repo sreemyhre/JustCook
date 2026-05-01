@@ -10,6 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 
 import { RecipeDto } from '../../../core/models/recipe.model';
 import { normalizeToMonday } from '../planner.utils';
+import { formatLastCooked } from '../../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-recipe-sidebar',
@@ -42,6 +43,7 @@ export class RecipeSidebarComponent {
   });
 
   readonly noReturn = () => false;
+  readonly formatLastCooked = formatLastCooked;
 
   get filteredRecipes(): RecipeDto[] {
     const query = this.searchText().toLowerCase().trim();
@@ -53,17 +55,6 @@ export class RecipeSidebarComponent {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const date = this.form.get('weekStartDate')!.value as Date;
     this.generatePlan.emit(date);
-  }
-
-  formatLastCooked(date: string | null): string {
-    if (!date) return 'Never cooked';
-    const d = new Date(date);
-    const diffDays = Math.floor((Date.now() - d.getTime()) / 86400000);
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
   private getNextMonday(): Date {

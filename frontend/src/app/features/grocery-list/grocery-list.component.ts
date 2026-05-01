@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -9,10 +10,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { MealPlanService, MealPlanDto } from '../../core/services/meal-plan.service';
 import { RecipeService } from '../../core/services/recipe.service';
+import { ToastService } from '../../core/services/toast.service';
 import { RecipeDto } from '../../core/models/recipe.model';
 import { normalizeToMonday, toWeekKey } from '../meal-planner/planner.utils';
 
@@ -62,8 +64,9 @@ function aggregateIngredients(recipes: RecipeDto[]): AggregatedIngredient[] {
 export class GroceryListComponent implements OnInit {
   private mealPlanService = inject(MealPlanService);
   private recipeService = inject(RecipeService);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   readonly dayNames = DAY_NAMES;
 
@@ -98,16 +101,18 @@ export class GroceryListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.mealPlanService.getAll().subscribe({
-      next: plans => {
-        this.plans.set(plans);
-        if (!this.selectedPlan()) {
-          this.jumpToNearestPlan(plans);
-        }
-        this.loadWeekRecipes();
-      },
-      error: () => this.snackBar.open('Failed to load plans.', 'Close', { duration: 3000 })
-    });
+    this.mealPlanService.getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: plans => {
+          this.plans.set(plans);
+          if (!this.selectedPlan()) {
+            this.jumpToNearestPlan(plans);
+          }
+          this.loadWeekRecipes();
+        },
+        error: () => this.toast.error('Failed to load plans.')
+      });
   }
 
   private jumpToNearestPlan(plans: MealPlanDto[]): void {
@@ -135,19 +140,20 @@ export class GroceryListComponent implements OnInit {
       this.weekRecipes.set([]);
       return;
     }
-
     this.loading.set(true);
     const recipeIds = [...new Set(plan.items.map(i => i.recipeId))];
-    forkJoin(recipeIds.map(id => this.recipeService.getById(id))).subscribe({
-      next: recipes => {
-        this.weekRecipes.set(recipes);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.snackBar.open('Failed to load recipe details.', 'Close', { duration: 3000 });
-      }
-    });
+    forkJoin(recipeIds.map(id => this.recipeService.getById(id)))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: recipes => {
+          this.weekRecipes.set(recipes);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.error('Failed to load recipe details.');
+        }
+      });
   }
 
   formatQuantity(qty: number): string {

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -10,11 +11,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { RecipeService } from '../../../core/services/recipe.service';
 import { TagService } from '../../../core/services/tag.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { TagDto } from '../../../core/models/tag.model';
+import { UpdateRecipeDto } from '../../../core/models/recipe.model';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -40,7 +43,8 @@ export class RecipeFormComponent implements OnInit {
   private tagService = inject(TagService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   isEditMode = signal(false);
   recipeId = signal<number | null>(null);
@@ -64,30 +68,34 @@ export class RecipeFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.tagService.getAll().subscribe(t => this.allTags.set(t));
+    this.tagService.getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(t => this.allTags.set(t));
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
       this.recipeId.set(+id);
-      this.recipeService.getById(+id).subscribe({
-        next: recipe => {
-          this.form.patchValue({
-            name: recipe.name,
-            description: recipe.description,
-            servingSize: recipe.servingSize,
-            prepTimeMinutes: recipe.prepTimeMinutes,
-            cookTimeMinutes: recipe.cookTimeMinutes,
-            instructions: recipe.instructions,
-            imageUrl: recipe.imageUrl,
-            tagIds: recipe.tags?.map(t => t.id) ?? []
-          });
-          recipe.ingredients.forEach(ing =>
-            this.ingredients.push(this.createIngredientGroup(ing.name, ing.quantity, ing.unit, ing.isStaple))
-          );
-        },
-        error: () => this.snackBar.open('Failed to load recipe', 'Close', { duration: 3000 })
-      });
+      this.recipeService.getById(+id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: recipe => {
+            this.form.patchValue({
+              name: recipe.name,
+              description: recipe.description,
+              servingSize: recipe.servingSize,
+              prepTimeMinutes: recipe.prepTimeMinutes,
+              cookTimeMinutes: recipe.cookTimeMinutes,
+              instructions: recipe.instructions,
+              imageUrl: recipe.imageUrl,
+              tagIds: recipe.tags?.map(t => t.id) ?? []
+            });
+            recipe.ingredients.forEach(ing =>
+              this.ingredients.push(this.createIngredientGroup(ing.name, ing.quantity, ing.unit, ing.isStaple))
+            );
+          },
+          error: () => this.toast.error('Failed to load recipe')
+        });
     } else {
       this.addIngredient();
     }
@@ -115,51 +123,42 @@ export class RecipeFormComponent implements OnInit {
   }
 
   save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.saving.set(true);
-    const raw = this.form.getRawValue();
+    const payload = this.buildPayload();
 
     const request$ = this.isEditMode()
-      ? this.recipeService.update(this.recipeId()!, {
-          name: raw.name,
-          description: raw.description,
-          servingSize: raw.servingSize,
-          prepTimeMinutes: raw.prepTimeMinutes,
-          cookTimeMinutes: raw.cookTimeMinutes,
-          instructions: raw.instructions,
-          imageUrl: raw.imageUrl,
-          tagIds: raw.tagIds,
-          ingredients: raw.ingredients
-        })
-      : this.recipeService.create({
-          userId: environment.defaultUserId,
-          name: raw.name,
-          description: raw.description,
-          servingSize: raw.servingSize,
-          prepTimeMinutes: raw.prepTimeMinutes,
-          cookTimeMinutes: raw.cookTimeMinutes,
-          instructions: raw.instructions,
-          imageUrl: raw.imageUrl,
-          tagIds: raw.tagIds,
-          ingredients: raw.ingredients
-        });
+      ? this.recipeService.update(this.recipeId()!, payload)
+      : this.recipeService.create({ userId: environment.defaultUserId, ...payload });
 
-    request$.subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving.set(false);
         this.router.navigate(['/app/recipes']);
       },
       error: () => {
         this.saving.set(false);
-        this.snackBar.open('Failed to save recipe', 'Close', { duration: 3000 });
+        this.toast.error('Failed to save recipe');
       }
     });
   }
 
   cancel(): void {
     this.router.navigate(['/app/recipes']);
+  }
+
+  private buildPayload(): UpdateRecipeDto {
+    const raw = this.form.getRawValue();
+    return {
+      name: raw.name,
+      description: raw.description,
+      servingSize: raw.servingSize,
+      prepTimeMinutes: raw.prepTimeMinutes,
+      cookTimeMinutes: raw.cookTimeMinutes,
+      instructions: raw.instructions,
+      imageUrl: raw.imageUrl,
+      tagIds: raw.tagIds,
+      ingredients: raw.ingredients
+    };
   }
 }
