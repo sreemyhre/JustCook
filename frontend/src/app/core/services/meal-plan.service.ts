@@ -2,11 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import {
+  MealPlanDto,
+  MealPlanSaveDto,
+  GenerateMealPlanRequest
+} from '../models/meal-plan.model';
 
-export interface TagQuota { tagId: number; count: number; }
-export interface GenerateMealPlanRequest { userId: number; weekStartDate: string; tagQuotas: TagQuota[]; }
-export interface MealPlanItemDto { id: number; dayOfWeek: number; recipeId: number; recipeName: string; }
-export interface MealPlanDto { id: number; userId: number; weekStartDate: string; items: MealPlanItemDto[]; }
+// Re-export so existing imports from this path continue to work
+export type { TagQuota, GenerateMealPlanRequest, MealPlanItemDto, MealPlanDto, MealPlanSaveDto } from '../models/meal-plan.model';
 
 @Injectable({ providedIn: 'root' })
 export class MealPlanService {
@@ -21,7 +24,7 @@ export class MealPlanService {
     return this.http.post<MealPlanDto>(`${this.base}/generate`, dto);
   }
 
-  create(dto: { userId: number; weekStartDate: string; items: { recipeId: number; dayOfWeek: number }[] }): Observable<MealPlanDto> {
+  create(dto: MealPlanSaveDto): Observable<MealPlanDto> {
     return this.http.post<MealPlanDto>(this.base, dto);
   }
 
@@ -35,7 +38,7 @@ export class MealPlanService {
     return this.http.get<MealPlanDto>(`${this.base}/${id}`);
   }
 
-  update(id: number, dto: { userId: number; weekStartDate: string; items: { recipeId: number; dayOfWeek: number }[] }): Observable<MealPlanDto> {
+  update(id: number, dto: MealPlanSaveDto): Observable<MealPlanDto> {
     return this.http.put<MealPlanDto>(`${this.base}/${id}`, dto);
   }
 

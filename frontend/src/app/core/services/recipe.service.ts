@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { RecipeDto, CreateRecipeDto, UpdateRecipeDto } from '../models/recipe.model';
 
@@ -8,11 +8,15 @@ import { RecipeDto, CreateRecipeDto, UpdateRecipeDto } from '../models/recipe.mo
 export class RecipeService {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/recipes`;
+  private cache$: Observable<RecipeDto[]> | null = null;
 
   getAll(userId = environment.defaultUserId): Observable<RecipeDto[]> {
-    return this.http.get<RecipeDto[]>(this.base, {
-      params: new HttpParams().set('userId', userId)
-    });
+    if (!this.cache$) {
+      this.cache$ = this.http.get<RecipeDto[]>(this.base, {
+        params: new HttpParams().set('userId', userId)
+      }).pipe(shareReplay(1));
+    }
+    return this.cache$;
   }
 
   getById(id: number): Observable<RecipeDto> {
@@ -20,24 +24,36 @@ export class RecipeService {
   }
 
   create(dto: CreateRecipeDto): Observable<RecipeDto> {
-    return this.http.post<RecipeDto>(this.base, dto);
+    return this.http.post<RecipeDto>(this.base, dto).pipe(
+      tap(() => this.clearCache())
+    );
   }
 
   update(id: number, dto: UpdateRecipeDto): Observable<RecipeDto> {
-    return this.http.put<RecipeDto>(`${this.base}/${id}`, dto);
+    return this.http.put<RecipeDto>(`${this.base}/${id}`, dto).pipe(
+      tap(() => this.clearCache())
+    );
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}`);
+    return this.http.delete<void>(`${this.base}/${id}`).pipe(
+      tap(() => this.clearCache())
+    );
   }
 
   logCook(id: number): Observable<RecipeDto> {
-    return this.http.patch<RecipeDto>(`${this.base}/${id}/log-cook`, {});
+    return this.http.patch<RecipeDto>(`${this.base}/${id}/log-cook`, {}).pipe(
+      tap(() => this.clearCache())
+    );
   }
 
   getRotationSuggestions(userId = environment.defaultUserId, count = 7): Observable<RecipeDto[]> {
     return this.http.get<RecipeDto[]>(`${this.base}/rotation-suggestions`, {
       params: new HttpParams().set('userId', userId).set('count', count)
     });
+  }
+
+  private clearCache(): void {
+    this.cache$ = null;
   }
 }

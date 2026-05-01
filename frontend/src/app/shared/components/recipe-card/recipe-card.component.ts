@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RecipeDto } from '../../../core/models/recipe.model';
+import { daysSinceDate } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-recipe-card',
@@ -20,9 +21,7 @@ export class RecipeCardComponent {
   private router = inject(Router);
 
   get daysSinceCooked(): number | null {
-    if (!this.recipe.lastCookedDate) return null;
-    const diff = Date.now() - new Date(this.recipe.lastCookedDate).getTime();
-    return Math.floor(diff / 86_400_000);
+    return daysSinceDate(this.recipe.lastCookedDate);
   }
 
   goToDetail(): void {

@@ -1,13 +1,16 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { RecipeService } from '../../../core/services/recipe.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { RecipeDto } from '../../../core/models/recipe.model';
+import { daysSinceDate } from '../../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -27,7 +30,8 @@ export class RecipeDetailComponent implements OnInit {
   private recipeService = inject(RecipeService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   recipe = signal<RecipeDto | null>(null);
   loggingCook = signal(false);
@@ -35,36 +39,38 @@ export class RecipeDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) { this.router.navigate(['/app/recipes']); return; }
-    this.recipeService.getById(+id).subscribe({
-      next: r => this.recipe.set(r),
-      error: () => {
-        this.snackBar.open('Recipe not found', 'Close', { duration: 3000 });
-        this.router.navigate(['/app/recipes']);
-      }
-    });
+    this.recipeService.getById(+id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: r => this.recipe.set(r),
+        error: () => {
+          this.toast.error('Recipe not found');
+          this.router.navigate(['/app/recipes']);
+        }
+      });
   }
 
   get daysSinceCooked(): number | null {
-    const d = this.recipe()?.lastCookedDate;
-    if (!d) return null;
-    return Math.floor((Date.now() - new Date(d).getTime()) / 86_400_000);
+    return daysSinceDate(this.recipe()?.lastCookedDate ?? null);
   }
 
   logCook(): void {
     const r = this.recipe();
     if (!r) return;
     this.loggingCook.set(true);
-    this.recipeService.logCook(r.id).subscribe({
-      next: updated => {
-        this.recipe.set(updated);
-        this.loggingCook.set(false);
-        this.snackBar.open('Cook logged!', 'Close', { duration: 3000 });
-      },
-      error: () => {
-        this.loggingCook.set(false);
-        this.snackBar.open('Failed to log cook', 'Close', { duration: 3000 });
-      }
-    });
+    this.recipeService.logCook(r.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: updated => {
+          this.recipe.set(updated);
+          this.loggingCook.set(false);
+          this.toast.success('Cook logged!');
+        },
+        error: () => {
+          this.loggingCook.set(false);
+          this.toast.error('Failed to log cook');
+        }
+      });
   }
 
   backToRecipes(): void {
@@ -77,12 +83,14 @@ export class RecipeDetailComponent implements OnInit {
 
   delete(): void {
     if (!confirm(`Delete "${this.recipe()!.name}"?`)) return;
-    this.recipeService.delete(this.recipe()!.id).subscribe({
-      next: () => {
-        this.snackBar.open('Recipe deleted', 'Close', { duration: 3000 });
-        this.router.navigate(['/app/recipes']);
-      },
-      error: () => this.snackBar.open('Failed to delete recipe', 'Close', { duration: 3000 })
-    });
+    this.recipeService.delete(this.recipe()!.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toast.success('Recipe deleted');
+          this.router.navigate(['/app/recipes']);
+        },
+        error: () => this.toast.error('Failed to delete recipe')
+      });
   }
 }

@@ -1,15 +1,16 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { TagService } from '../../core/services/tag.service';
+import { ToastService } from '../../core/services/toast.service';
 import { TagDto } from '../../core/models/tag.model';
 
 @Component({
@@ -30,11 +31,11 @@ import { TagDto } from '../../core/models/tag.model';
 })
 export class TagListComponent implements OnInit {
   private tagService = inject(TagService);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   tags = signal<TagDto[]>([]);
   displayedColumns = ['name', 'actions'];
-
   editingId = signal<number | null>(null);
   editingName = signal<string>('');
   deletingId = signal<number | null>(null);
@@ -46,10 +47,12 @@ export class TagListComponent implements OnInit {
   }
 
   loadTags(): void {
-    this.tagService.getAll().subscribe({
-      next: tags => this.tags.set(tags),
-      error: () => this.showError('Failed to load tags')
-    });
+    this.tagService.getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: tags => this.tags.set(tags),
+        error: () => this.toast.error('Failed to load tags')
+      });
   }
 
   startEdit(tag: TagDto): void {
@@ -65,26 +68,25 @@ export class TagListComponent implements OnInit {
   saveEdit(tag: TagDto): void {
     const name = this.editingName().trim();
     if (!name) return;
-
-    const duplicate = this.tags().some(t => t.id !== tag.id && t.name.toLowerCase() === name.toLowerCase());
-    if (duplicate) {
-      this.showError(`"${name}" already exists`);
+    if (this.isDuplicateName(name, tag.id)) {
+      this.toast.error(`"${name}" already exists`);
       return;
     }
-
-    this.tagService.update(tag.id, { name }).subscribe({
-      next: updated => {
-        this.tags.update(list => list.map(t => t.id === updated.id ? updated : t));
-        this.editingId.set(null);
-        this.showSuccess('Tag updated');
-      },
-      error: () => this.showError('Failed to update tag — please try again')
-    });
+    this.tagService.update(tag.id, { name })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: updated => {
+          this.tags.update(list => list.map(t => t.id === updated.id ? updated : t));
+          this.editingId.set(null);
+          this.toast.success('Tag updated');
+        },
+        error: () => this.toast.error('Failed to update tag — please try again')
+      });
   }
 
   confirmDelete(tag: TagDto): void {
     this.deletingId.set(tag.id);
-    this.editingId.set(null); // close any open edit
+    this.editingId.set(null);
   }
 
   cancelDelete(): void {
@@ -92,45 +94,44 @@ export class TagListComponent implements OnInit {
   }
 
   deleteTag(tag: TagDto): void {
-    this.tagService.delete(tag.id).subscribe({
-      next: () => {
-        this.tags.update(list => list.filter(t => t.id !== tag.id));
-        this.deletingId.set(null);
-        this.showSuccess('Tag deleted');
-      },
-      error: () => {
-        this.deletingId.set(null);
-        this.showError('Failed to delete tag');
-      }
-    });
+    this.tagService.delete(tag.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.tags.update(list => list.filter(t => t.id !== tag.id));
+          this.deletingId.set(null);
+          this.toast.success('Tag deleted');
+        },
+        error: () => {
+          this.deletingId.set(null);
+          this.toast.error('Failed to delete tag');
+        }
+      });
   }
 
   addTag(): void {
     const name = this.newTagName().trim();
     if (!name) return;
-
-    const duplicate = this.tags().some(t => t.name.toLowerCase() === name.toLowerCase());
-    if (duplicate) {
+    if (this.isDuplicateName(name)) {
       this.addTagError.set(`"${name}" already exists`);
       return;
     }
-
     this.addTagError.set('');
-    this.tagService.create({ name }).subscribe({
-      next: created => {
-        this.tags.update(list => [...list, created]);
-        this.newTagName.set('');
-        this.showSuccess('Tag added');
-      },
-      error: () => this.showError('Failed to add tag — please try again')
-    });
+    this.tagService.create({ name })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: created => {
+          this.tags.update(list => [...list, created]);
+          this.newTagName.set('');
+          this.toast.success('Tag added');
+        },
+        error: () => this.toast.error('Failed to add tag — please try again')
+      });
   }
 
-  private showSuccess(msg: string): void {
-    this.snackBar.open(msg, 'Close', { duration: 3000 });
-  }
-
-  private showError(msg: string): void {
-    this.snackBar.open(msg, 'Close', { duration: 4000 });
+  private isDuplicateName(name: string, excludeId?: number): boolean {
+    return this.tags().some(t =>
+      t.name.toLowerCase() === name.toLowerCase() && t.id !== excludeId
+    );
   }
 }
