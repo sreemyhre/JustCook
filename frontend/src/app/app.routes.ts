@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // ── Public layout ──────────────────────────────────────────────────────
@@ -20,13 +21,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/about/about.component')
             .then(m => m.AboutComponent)
+      },
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./features/auth/login/login.component')
+            .then(m => m.LoginComponent)
       }
     ]
   },
 
-  // ── App layout ─────────────────────────────────────────────────────────
+  // ── App layout (requires auth) ─────────────────────────────────────────
   {
     path: 'app',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./layouts/app-layout/app-layout.component')
         .then(m => m.AppLayoutComponent),
@@ -74,6 +82,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/grocery-list/grocery-list.component')
             .then(m => m.GroceryListComponent)
+      },
+      {
+        path: 'account',
+        loadComponent: () =>
+          import('./features/auth/account/account.component')
+            .then(m => m.AccountComponent)
       }
     ]
   },

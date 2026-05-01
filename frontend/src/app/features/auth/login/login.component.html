@@ -1,0 +1,39 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-logo">🍲</span>
+      <h1 class="brand-title">JustCook</h1>
+      <p class="brand-tagline">Sign in to your family kitchen</p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Signing you in…</p>
+      </div>
+    } @else {
+      <div class="login-buttons">
+        <button mat-stroked-button class="social-btn google-btn" (click)="loginWithGoogle()">
+          <img src="assets/icons/google.svg" alt="" class="social-icon" />
+          Continue with Google
+        </button>
+
+        <button mat-stroked-button class="social-btn apple-btn" (click)="loginWithApple()">
+          <mat-icon class="social-icon apple-icon">apple</mat-icon>
+          Continue with Apple
+        </button>
+
+        <button mat-stroked-button class="social-btn facebook-btn" (click)="loginWithFacebook()">
+          <img src="assets/icons/facebook.svg" alt="" class="social-icon" />
+          Continue with Facebook
+        </button>
+      </div>
+
+      <p class="login-disclaimer">
+        By signing in you agree to our Terms of Service. We only use your name and profile picture.
+      </p>
+
+      <a routerLink="/" class="back-link">← Back to home</a>
+    }
+  </div>
+</div>

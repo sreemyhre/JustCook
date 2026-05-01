@@ -1,0 +1,52 @@
+.account-page {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.account-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e8f4f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; color: #666; }
+}
+
+.account-name {
+  h2 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+  .account-email { margin: 0 0 0.25rem; color: #666; font-size: 0.9rem; }
+  .account-provider { font-size: 0.75rem; color: #999; text-transform: capitalize; }
+}
+
+.account-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}

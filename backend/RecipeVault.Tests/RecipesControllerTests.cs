@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RecipeVault.API.Controllers;
@@ -16,6 +18,15 @@ public class RecipesControllerTests
     {
         _mockService = new Mock<IRecipeService>();
         _controller = new RecipesController(_mockService.Object);
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim("sub", "1")
+        }, "TestAuth"));
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
     }
 
     [Fact]
@@ -76,7 +87,7 @@ public class RecipesControllerTests
         var recipes = new List<RecipeDto> { new() { Id = 1, Name = "Pasta", UserId = 1 } };
         _mockService.Setup(s => s.GetAllByUserIdAsync(1)).ReturnsAsync(recipes);
 
-        var result = await _controller.GetAllRecipes(1);
+        var result = await _controller.GetAllRecipes();
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(recipes, okResult.Value);
@@ -131,7 +142,7 @@ public class RecipesControllerTests
         var recipes = new List<RecipeDto> { new() { Id = 1, Name = "Old Recipe" } };
         _mockService.Setup(s => s.GetRotationSuggestionsAsync(1, 5)).ReturnsAsync(recipes);
 
-        var result = await _controller.GetRotationSuggestions(1, 5);
+        var result = await _controller.GetRotationSuggestions(5);
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(recipes, okResult.Value);

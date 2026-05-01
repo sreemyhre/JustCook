@@ -1,0 +1,29 @@
+<div class="account-page">
+  <div class="account-card">
+    @if (user(); as profile) {
+      <div class="account-header">
+        @if (profile.pictureUrl) {
+          <img [src]="profile.pictureUrl" [alt]="profile.firstName ?? 'User'" class="avatar" />
+        } @else {
+          <div class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+        <div class="account-name">
+          <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+          <p class="account-email">{{ profile.email }}</p>
+          <span class="account-provider">via {{ profile.provider }}</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="account-actions">
+        <button mat-stroked-button color="warn" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Sign out
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -8,8 +8,8 @@ import { Subject, switchMap } from 'rxjs';
 import { MealPlanService, MealPlanDto } from '../../../core/services/meal-plan.service';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { RecipeDto } from '../../../core/models/recipe.model';
-import { environment } from '../../../../environments/environment';
 
 import { DropEvent } from '../planner.types';
 import { buildWeeksForMonth, isFutureWeek, normalizeToMonday, startOfMonth, toWeekKey } from '../planner.utils';
@@ -33,7 +33,10 @@ export class GeneratePlanComponent implements OnInit {
   private mealPlanService = inject(MealPlanService);
   private recipeService = inject(RecipeService);
   private toast = inject(ToastService);
+  private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  private get userId(): number { return this.authService.currentUser()?.id ?? 0; }
 
   viewMonth = signal<Date>(startOfMonth(new Date()));
   editMode = signal(false);
@@ -97,7 +100,7 @@ export class GeneratePlanComponent implements OnInit {
 
     this.generating.set(true);
     this.mealPlanService.generate({
-      userId: environment.defaultUserId,
+      userId: this.userId,
       weekStartDate: weekStart.toISOString(),
       tagQuotas: []
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -127,12 +130,12 @@ export class GeneratePlanComponent implements OnInit {
 
     const save$ = week.planId
       ? this.mealPlanService.update(week.planId, {
-          userId: environment.defaultUserId,
+          userId: this.userId,
           weekStartDate: week.weekStart.toISOString(),
           items: updatedItems
         })
       : this.mealPlanService.create({
-          userId: environment.defaultUserId,
+          userId: this.userId,
           weekStartDate: week.weekStart.toISOString(),
           items: updatedItems
         });

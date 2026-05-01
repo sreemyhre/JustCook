@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -28,10 +28,8 @@ export class MealPlanService {
     return this.http.post<MealPlanDto>(this.base, dto);
   }
 
-  getAll(userId = environment.defaultUserId): Observable<MealPlanDto[]> {
-    return this.http.get<MealPlanDto[]>(this.base, {
-      params: new HttpParams().set('userId', userId)
-    });
+  getAll(): Observable<MealPlanDto[]> {
+    return this.http.get<MealPlanDto[]>(this.base);
   }
 
   getById(id: number): Observable<MealPlanDto> {

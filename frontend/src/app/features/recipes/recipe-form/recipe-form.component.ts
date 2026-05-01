@@ -16,9 +16,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { TagService } from '../../../core/services/tag.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { TagDto } from '../../../core/models/tag.model';
 import { UpdateRecipeDto } from '../../../core/models/recipe.model';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-recipe-form',
@@ -44,7 +44,10 @@ export class RecipeFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
+  private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  private get userId(): number { return this.authService.currentUser()?.id ?? 0; }
 
   isEditMode = signal(false);
   recipeId = signal<number | null>(null);
@@ -129,7 +132,7 @@ export class RecipeFormComponent implements OnInit {
 
     const request$ = this.isEditMode()
       ? this.recipeService.update(this.recipeId()!, payload)
-      : this.recipeService.create({ userId: environment.defaultUserId, ...payload });
+      : this.recipeService.create({ userId: this.userId, ...payload });
 
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
