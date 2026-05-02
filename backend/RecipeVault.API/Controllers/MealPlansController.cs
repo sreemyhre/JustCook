@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecipeVault.Application.DTOs;
 using RecipeVault.Application.Interfaces;
@@ -6,6 +7,7 @@ namespace RecipeVault.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MealPlansController : ControllerBase
 {
     private readonly IMealPlanService _mealPlanService;
@@ -13,6 +15,13 @@ public class MealPlansController : ControllerBase
     public MealPlansController(IMealPlanService mealPlanService)
     {
         _mealPlanService = mealPlanService;
+    }
+
+    private int GetUserId()
+    {
+        var sub = User.FindFirst("sub")?.Value
+            ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(sub, out var id) ? id : 0;
     }
 
     [HttpPost]
@@ -31,9 +40,9 @@ public class MealPlansController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MealPlanDto>>> GetAllMealPlans([FromQuery] int userId)
+    public async Task<ActionResult<IEnumerable<MealPlanDto>>> GetAllMealPlans()
     {
-        var plans = await _mealPlanService.GetAllByUserIdAsync(userId);
+        var plans = await _mealPlanService.GetAllByUserIdAsync(GetUserId());
         return Ok(plans);
     }
 

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RecipeVault.API.Controllers;
@@ -16,6 +18,15 @@ public class MealPlansControllerTests
     {
         _mockService = new Mock<IMealPlanService>();
         _controller = new MealPlansController(_mockService.Object);
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim("sub", "1")
+        }, "TestAuth"));
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
     }
 
     [Fact]
@@ -62,7 +73,7 @@ public class MealPlansControllerTests
         var plans = new List<MealPlanDto> { new() { Id = 1, UserId = 1 } };
         _mockService.Setup(s => s.GetAllByUserIdAsync(1)).ReturnsAsync(plans);
 
-        var result = await _controller.GetAllMealPlans(1);
+        var result = await _controller.GetAllMealPlans();
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(plans, okResult.Value);

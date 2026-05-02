@@ -27,10 +27,28 @@
   </div>
 
   <div class="navbar-actions">
-    <a routerLink="/app/account" routerLinkActive="active" class="account-link">
-      <mat-icon>person</mat-icon>
-      Account
-    </a>
+    @if (currentUser(); as user) {
+      <button mat-button class="user-menu-btn" [matMenuTriggerFor]="userMenu">
+        @if (user.pictureUrl) {
+          <img [src]="user.pictureUrl" [alt]="user.firstName ?? 'User'" class="nav-avatar" />
+        } @else {
+          <mat-icon>account_circle</mat-icon>
+        }
+        <span class="nav-greeting">Hi, {{ user.firstName }}!</span>
+        <mat-icon class="chevron">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <a mat-menu-item routerLink="/app/account">
+          <mat-icon>manage_accounts</mat-icon>
+          Account
+        </a>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Sign out
+        </button>
+      </mat-menu>
+    }
   </div>
 
 </nav>

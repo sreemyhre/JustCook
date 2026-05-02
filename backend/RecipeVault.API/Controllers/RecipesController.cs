@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecipeVault.Application.DTOs;
 using RecipeVault.Application.Interfaces;
@@ -6,6 +7,7 @@ namespace RecipeVault.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class RecipesController : ControllerBase
 {
     private readonly IRecipeService _recipeService;
@@ -13,6 +15,13 @@ public class RecipesController : ControllerBase
     public RecipesController(IRecipeService recipeService)
     {
         _recipeService = recipeService;
+    }
+
+    private int GetUserId()
+    {
+        var sub = User.FindFirst("sub")?.Value
+            ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(sub, out var id) ? id : 0;
     }
 
     [HttpPost]
@@ -31,9 +40,9 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RecipeDto>>> GetAllRecipes([FromQuery] int userId)
+    public async Task<ActionResult<IEnumerable<RecipeDto>>> GetAllRecipes()
     {
-        var recipes = await _recipeService.GetAllByUserIdAsync(userId);
+        var recipes = await _recipeService.GetAllByUserIdAsync(GetUserId());
         return Ok(recipes);
     }
 
@@ -54,9 +63,9 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet("rotation-suggestions")]
-    public async Task<ActionResult<IEnumerable<RecipeDto>>> GetRotationSuggestions([FromQuery] int userId, [FromQuery] int count = 5)
+    public async Task<ActionResult<IEnumerable<RecipeDto>>> GetRotationSuggestions([FromQuery] int count = 5)
     {
-        var recipes = await _recipeService.GetRotationSuggestionsAsync(userId, count);
+        var recipes = await _recipeService.GetRotationSuggestionsAsync(GetUserId(), count);
         return Ok(recipes);
     }
 

@@ -10,11 +10,9 @@ export class RecipeService {
   private base = `${environment.apiUrl}/recipes`;
   private cache$: Observable<RecipeDto[]> | null = null;
 
-  getAll(userId = environment.defaultUserId): Observable<RecipeDto[]> {
+  getAll(): Observable<RecipeDto[]> {
     if (!this.cache$) {
-      this.cache$ = this.http.get<RecipeDto[]>(this.base, {
-        params: new HttpParams().set('userId', userId)
-      }).pipe(shareReplay(1));
+      this.cache$ = this.http.get<RecipeDto[]>(this.base).pipe(shareReplay(1));
     }
     return this.cache$;
   }
@@ -47,9 +45,9 @@ export class RecipeService {
     );
   }
 
-  getRotationSuggestions(userId = environment.defaultUserId, count = 7): Observable<RecipeDto[]> {
+  getRotationSuggestions(count = 7): Observable<RecipeDto[]> {
     return this.http.get<RecipeDto[]>(`${this.base}/rotation-suggestions`, {
-      params: new HttpParams().set('userId', userId).set('count', count)
+      params: new HttpParams().set('count', count)
     });
   }
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecipeVault.Application.DTOs;
 using RecipeVault.Application.Interfaces;
@@ -6,6 +7,7 @@ namespace RecipeVault.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TagsController : ControllerBase
 {
     private readonly ITagService _tagService;
