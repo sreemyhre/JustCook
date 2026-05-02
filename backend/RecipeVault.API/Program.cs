@@ -90,7 +90,7 @@ var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
 var dbPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 string connectionString;
 if (!string.IsNullOrEmpty(dbHost) && !string.IsNullOrEmpty(dbPassword))
-    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true";
+    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Disable";
 else
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
