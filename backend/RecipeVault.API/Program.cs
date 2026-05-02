@@ -15,6 +15,10 @@ using RecipeVault.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ── PORT binding for Railway ───────────────────────────────────────────────
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://+:{port}");
+
 // ── Firebase Admin SDK ─────────────────────────────────────────────────────
 var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT");
 var firebaseFilePath = builder.Configuration["Firebase:ServiceAccountPath"];
@@ -104,6 +108,13 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 // ── Build ──────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
+// ── Auto-migrate on startup ────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseCors("AllowAngular");
 app.UseMiddleware<CookieJwtMiddleware>();
 app.UseAuthentication();
@@ -115,5 +126,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 app.Run();
