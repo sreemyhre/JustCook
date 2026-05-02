@@ -83,18 +83,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ── Database ───────────────────────────────────────────────────────────────
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "railway";
+var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
+var dbPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 string connectionString;
-if (!string.IsNullOrEmpty(databaseUrl))
-{
-    var uri = new Uri(databaseUrl);
-    var userInfo = uri.UserInfo.Split(':');
-    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-}
+if (!string.IsNullOrEmpty(dbHost) && !string.IsNullOrEmpty(dbPassword))
+    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true";
 else
-{
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-}
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 // ── HttpClient for reCAPTCHA ───────────────────────────────────────────────
