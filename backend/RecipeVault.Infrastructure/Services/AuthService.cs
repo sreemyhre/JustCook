@@ -17,17 +17,20 @@ public class AuthService : IAuthService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
+    private readonly SeedDataService _seedDataService;
 
     public AuthService(
         AppDbContext db,
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger,
+        SeedDataService seedDataService)
     {
         _db = db;
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
         _logger = logger;
+        _seedDataService = seedDataService;
     }
 
     public async Task<UserDto> LoginAsync(string firebaseToken, string recaptchaToken)
@@ -69,6 +72,9 @@ public class AuthService : IAuthService
                 CreatedAt = DateTime.UtcNow
             };
             _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+            await _seedDataService.SeedForNewUserAsync(user.Id);
+            return ToDto(user);
         }
         else
         {

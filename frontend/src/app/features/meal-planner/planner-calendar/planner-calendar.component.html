@@ -1,25 +1,41 @@
 <div class="calendar">
 
-  <div class="month-header">
-    <button mat-icon-button (click)="prevMonth.emit()" aria-label="Previous month">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-    <span class="month-title">{{ formatMonthYear(viewMonth) }}</span>
-    <button mat-icon-button (click)="nextMonth.emit()" aria-label="Next month">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
-    <span class="header-spacer"></span>
+  <div class="calendar-toolbar">
+    <form [formGroup]="generateForm" (ngSubmit)="submitGenerate()" class="header-generate-form">
+      <mat-form-field appearance="outline" class="header-date-field">
+        <mat-label>Week to generate</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="weekStartDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit" [disabled]="generating" class="header-generate-btn">
+        <mat-icon>auto_awesome</mat-icon>
+        {{ generating ? 'Generating…' : 'Generate Plan' }}
+      </button>
+    </form>
     <button mat-stroked-button
             (click)="toggleEdit.emit()"
             [class.active-edit]="editMode"
             [disabled]="!hasFutureWeeks && !editMode"
             [title]="hasFutureWeeks ? '' : 'No future weeks in this month to edit'">
       <mat-icon>{{ editMode ? 'close' : 'edit' }}</mat-icon>
-      {{ editMode ? 'Cancel Edit' : 'Edit' }}
+      {{ editMode ? 'Cancel Edit' : 'Edit Plan' }}
     </button>
   </div>
 
-  <div class="grid-row header-row">
+  <div class="calendar-box">
+
+    <div class="month-header">
+      <button mat-icon-button (click)="prevMonth.emit()" aria-label="Previous month">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="month-title">{{ formatMonthYear(viewMonth) }}</span>
+      <button mat-icon-button (click)="nextMonth.emit()" aria-label="Next month">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <div class="grid-row header-row">
     <div class="week-label-col"></div>
     @for (day of dayHeaders; track day) {
       <div class="day-header-cell">{{ day }}</div>
@@ -70,5 +86,7 @@
 
     </div>
   }
+
+  </div>
 
 </div>
