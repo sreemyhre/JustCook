@@ -44,7 +44,7 @@ function aggregateIngredients(recipes: RecipeDto[]): AggregatedIngredient[] {
 }
 
 @Component({
-  selector: 'app-grocery-list',
+  selector: 'app-shop',
   standalone: true,
   imports: [
     CommonModule,
@@ -58,10 +58,10 @@ function aggregateIngredients(recipes: RecipeDto[]): AggregatedIngredient[] {
     MatProgressSpinnerModule,
     MatSnackBarModule
   ],
-  templateUrl: './grocery-list.component.html',
-  styleUrl: './grocery-list.component.scss'
+  templateUrl: './shop.component.html',
+  styleUrl: './shop.component.scss'
 })
-export class GroceryListComponent implements OnInit {
+export class ShopComponent implements OnInit {
   private mealPlanService = inject(MealPlanService);
   private recipeService = inject(RecipeService);
   private toast = inject(ToastService);

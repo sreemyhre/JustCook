@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"c:\\\\Users\\\\sreem\\\\OneDrive\\\\Sree_Myhre_Laptop\\\\IT Job\\\\JustCook\" rm -r \"frontend/src/app/features/grocery-list\")",
+      "Bash(git -C \"c:\\\\Users\\\\sreem\\\\OneDrive\\\\Sree_Myhre_Laptop\\\\IT Job\\\\JustCook\" status --short frontend/src/app/features/)"
+    ]
+  }
+}

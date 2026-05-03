@@ -83,8 +83,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ── Database ───────────────────────────────────────────────────────────────
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "railway";
+var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "postgres";
+var dbPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+string connectionString;
+if (!string.IsNullOrEmpty(dbHost) && !string.IsNullOrEmpty(dbPassword))
+    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Disable";
+else
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 // ── HttpClient for reCAPTCHA ───────────────────────────────────────────────
 builder.Services.AddHttpClient("recaptcha");
