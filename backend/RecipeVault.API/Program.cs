@@ -111,6 +111,7 @@ builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IMealPlanRepository, MealPlanRepository>();
 builder.Services.AddScoped<IMealPlanService, MealPlanService>();
 
+builder.Services.AddScoped<SeedDataService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 

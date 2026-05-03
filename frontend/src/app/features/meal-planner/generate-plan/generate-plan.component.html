@@ -1,13 +1,11 @@
 <div class="page-container">
-  <h1 class="page-title">Meal Planner</h1>
+  <h1 class="page-title">Plan your meals</h1>
 
   <div class="main-layout" cdkDropListGroup>
 
     <app-recipe-sidebar
       [allRecipes]="allRecipes()"
-      [generating]="generating()"
-      [editMode]="editMode()"
-      (generatePlan)="generate($event)">
+      [editMode]="editMode()">
     </app-recipe-sidebar>
 
     <app-planner-calendar
@@ -15,10 +13,12 @@
       [viewMonth]="viewMonth()"
       [editMode]="editMode()"
       [savingDay]="savingDay()"
+      [generating]="generating()"
       (drop)="onDrop($event)"
       (prevMonth)="prevMonth()"
       (nextMonth)="nextMonth()"
-      (toggleEdit)="toggleEdit()">
+      (toggleEdit)="toggleEdit()"
+      (generatePlan)="generate($event)">
     </app-planner-calendar>
 
   </div>

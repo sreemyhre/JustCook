@@ -17,28 +17,6 @@
   gap: 12px;
 }
 
-.generate-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.date-field {
-  width: 100%;
-
-  ::ng-deep .mat-mdc-form-field-subscript-wrapper { margin-top: 0; }
-}
-
-.generate-btn {
-  width: 100%;
-}
-
-.sidebar-divider {
-  height: 1px;
-  background: #f0f0f0;
-  flex-shrink: 0;
-}
-
 .panel-title {
   margin: 0;
   font-size: 0.78rem;
