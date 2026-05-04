@@ -27,6 +27,7 @@ public class RecipesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RecipeDto>> CreateRecipe(CreateRecipeDto dto)
     {
+        dto.UserId = GetUserId();
         var recipe = await _recipeService.CreateRecipeAsync(dto);
         return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipe);
     }
@@ -34,7 +35,7 @@ public class RecipesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<RecipeDto>> GetRecipe(int id)
     {
-        var recipe = await _recipeService.GetByIdAsync(id);
+        var recipe = await _recipeService.GetByIdAsync(id, GetUserId());
         if (recipe == null) return NotFound();
         return Ok(recipe);
     }
@@ -49,7 +50,7 @@ public class RecipesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<RecipeDto>> UpdateRecipe(int id, UpdateRecipeDto dto)
     {
-        var recipe = await _recipeService.UpdateRecipeAsync(id, dto);
+        var recipe = await _recipeService.UpdateRecipeAsync(id, GetUserId(), dto);
         if (recipe == null) return NotFound();
         return Ok(recipe);
     }
@@ -57,7 +58,7 @@ public class RecipesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRecipe(int id)
     {
-        var deleted = await _recipeService.DeleteRecipeAsync(id);
+        var deleted = await _recipeService.DeleteRecipeAsync(id, GetUserId());
         if (!deleted) return NotFound();
         return NoContent();
     }
@@ -72,7 +73,7 @@ public class RecipesController : ControllerBase
     [HttpPatch("{id}/log-cook")]
     public async Task<ActionResult<RecipeDto>> LogCook(int id)
     {
-        var recipe = await _recipeService.LogCookAsync(id);
+        var recipe = await _recipeService.LogCookAsync(id, GetUserId());
         if (recipe == null) return NotFound();
         return Ok(recipe);
     }

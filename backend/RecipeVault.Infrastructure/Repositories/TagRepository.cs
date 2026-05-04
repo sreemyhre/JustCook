@@ -14,20 +14,20 @@ public class TagRepository : ITagRepository
         _context = context;
     }
 
-    public async Task<Tag?> GetByIdAsync(int id)
+    public async Task<Tag?> GetByIdAsync(int id, int userId)
     {
-        return await _context.Tags.FirstOrDefaultAsync(t => t.Id == id);
+        return await _context.Tags.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
     }
 
-    public async Task<IEnumerable<Tag>> GetAllAsync()
+    public async Task<IEnumerable<Tag>> GetAllByUserIdAsync(int userId)
     {
-        return await _context.Tags.OrderBy(t => t.Name).ToListAsync();
+        return await _context.Tags.Where(t => t.UserId == userId).OrderBy(t => t.Name).ToListAsync();
     }
 
-    public async Task<IEnumerable<Recipe>> GetRecipesByTagIdAsync(int tagId)
+    public async Task<IEnumerable<Recipe>> GetRecipesByTagIdAsync(int tagId, int userId)
     {
         return await _context.RecipeTags
-            .Where(rt => rt.TagId == tagId)
+            .Where(rt => rt.TagId == tagId && rt.Tag.UserId == userId)
             .Include(rt => rt.Recipe)
                 .ThenInclude(r => r.Ingredients)
             .Select(rt => rt.Recipe)
@@ -47,9 +47,9 @@ public class TagRepository : ITagRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, int userId)
     {
-        var tag = await _context.Tags.FindAsync(id);
+        var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
         if (tag == null) return false;
 
         _context.Tags.Remove(tag);
