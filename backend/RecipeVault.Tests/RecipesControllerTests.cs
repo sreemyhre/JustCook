@@ -35,7 +35,7 @@ public class RecipesControllerTests
         var dto = new CreateRecipeDto { Name = "Pasta", UserId = 1 };
         var recipeDto = new RecipeDto { Id = 1, Name = "Pasta", UserId = 1 };
 
-        _mockService.Setup(s => s.CreateRecipeAsync(dto)).ReturnsAsync(recipeDto);
+        _mockService.Setup(s => s.CreateRecipeAsync(It.IsAny<CreateRecipeDto>())).ReturnsAsync(recipeDto);
 
         var result = await _controller.CreateRecipe(dto);
 
@@ -50,11 +50,11 @@ public class RecipesControllerTests
         var dto = new CreateRecipeDto { Name = "Pasta", UserId = 1 };
         var recipeDto = new RecipeDto { Id = 1, Name = "Pasta", UserId = 1 };
 
-        _mockService.Setup(s => s.CreateRecipeAsync(dto)).ReturnsAsync(recipeDto);
+        _mockService.Setup(s => s.CreateRecipeAsync(It.IsAny<CreateRecipeDto>())).ReturnsAsync(recipeDto);
 
         await _controller.CreateRecipe(dto);
 
-        _mockService.Verify(s => s.CreateRecipeAsync(dto), Times.Once);
+        _mockService.Verify(s => s.CreateRecipeAsync(It.IsAny<CreateRecipeDto>()), Times.Once);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class RecipesControllerTests
     {
         var recipeDto = new RecipeDto { Id = 1, Name = "Pasta", UserId = 1 };
 
-        _mockService.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(recipeDto);
+        _mockService.Setup(s => s.GetByIdAsync(1, 1)).ReturnsAsync(recipeDto);
 
         var result = await _controller.GetRecipe(1);
 
@@ -74,7 +74,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task GetRecipe_WhenRecipeNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.GetByIdAsync(999)).ReturnsAsync((RecipeDto?)null);
+        _mockService.Setup(s => s.GetByIdAsync(999, 1)).ReturnsAsync((RecipeDto?)null);
 
         var result = await _controller.GetRecipe(999);
 
@@ -98,7 +98,7 @@ public class RecipesControllerTests
     {
         var dto = new UpdateRecipeDto { Name = "Updated" };
         var recipeDto = new RecipeDto { Id = 1, Name = "Updated", UserId = 1 };
-        _mockService.Setup(s => s.UpdateRecipeAsync(1, dto)).ReturnsAsync(recipeDto);
+        _mockService.Setup(s => s.UpdateRecipeAsync(1, 1, dto)).ReturnsAsync(recipeDto);
 
         var result = await _controller.UpdateRecipe(1, dto);
 
@@ -109,7 +109,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task UpdateRecipe_WhenRecipeNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.UpdateRecipeAsync(999, It.IsAny<UpdateRecipeDto>())).ReturnsAsync((RecipeDto?)null);
+        _mockService.Setup(s => s.UpdateRecipeAsync(999, 1, It.IsAny<UpdateRecipeDto>())).ReturnsAsync((RecipeDto?)null);
 
         var result = await _controller.UpdateRecipe(999, new UpdateRecipeDto());
 
@@ -119,7 +119,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task DeleteRecipe_WhenDeleted_ShouldReturnNoContent()
     {
-        _mockService.Setup(s => s.DeleteRecipeAsync(1)).ReturnsAsync(true);
+        _mockService.Setup(s => s.DeleteRecipeAsync(1, 1)).ReturnsAsync(true);
 
         var result = await _controller.DeleteRecipe(1);
 
@@ -129,7 +129,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task DeleteRecipe_WhenNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.DeleteRecipeAsync(999)).ReturnsAsync(false);
+        _mockService.Setup(s => s.DeleteRecipeAsync(999, 1)).ReturnsAsync(false);
 
         var result = await _controller.DeleteRecipe(999);
 
@@ -152,7 +152,7 @@ public class RecipesControllerTests
     public async Task LogCook_WhenRecipeExists_ShouldReturnOk()
     {
         var recipeDto = new RecipeDto { Id = 1, Name = "Pasta", CookCount = 3 };
-        _mockService.Setup(s => s.LogCookAsync(1)).ReturnsAsync(recipeDto);
+        _mockService.Setup(s => s.LogCookAsync(1, 1)).ReturnsAsync(recipeDto);
 
         var result = await _controller.LogCook(1);
 
@@ -163,7 +163,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task LogCook_WhenRecipeNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.LogCookAsync(999)).ReturnsAsync((RecipeDto?)null);
+        _mockService.Setup(s => s.LogCookAsync(999, 1)).ReturnsAsync((RecipeDto?)null);
 
         var result = await _controller.LogCook(999);
 

@@ -10,11 +10,13 @@ namespace RecipeVault.Application.Services;
 public class MealPlanService : IMealPlanService
 {
     private readonly IMealPlanRepository _mealPlanRepository;
+    private readonly IRecipeRepository _recipeRepository;
     private readonly IMapper _mapper;
 
-    public MealPlanService(IMealPlanRepository mealPlanRepository, IMapper mapper)
+    public MealPlanService(IMealPlanRepository mealPlanRepository, IRecipeRepository recipeRepository, IMapper mapper)
     {
         _mealPlanRepository = mealPlanRepository;
+        _recipeRepository = recipeRepository;
         _mapper = mapper;
     }
 
@@ -43,6 +45,26 @@ public class MealPlanService : IMealPlanService
     {
         var mealPlan = await _mealPlanRepository.GetByIdAsync(id);
         if (mealPlan == null) return null;
+
+        var oldRecipeIds = mealPlan.Items.Select(i => i.RecipeId).ToHashSet();
+        var newItemMap = dto.Items.ToDictionary(i => i.RecipeId, i => i.DayOfWeek);
+        var newRecipeIds = newItemMap.Keys.ToHashSet();
+
+        foreach (var recipeId in oldRecipeIds.Except(newRecipeIds))
+        {
+            var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+            if (recipe == null) continue;
+            recipe.LastPlannedDate = null;
+            await _recipeRepository.UpdateAsync(recipe);
+        }
+
+        foreach (var recipeId in newRecipeIds.Except(oldRecipeIds))
+        {
+            var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+            if (recipe == null) continue;
+            recipe.LastPlannedDate = dto.WeekStartDate.AddDays((int)newItemMap[recipeId]);
+            await _recipeRepository.UpdateAsync(recipe);
+        }
 
         mealPlan.WeekStartDate = dto.WeekStartDate;
         mealPlan.Items.Clear();
@@ -94,8 +116,8 @@ public class MealPlanService : IMealPlanService
         }
 
         // Step 3: Assign days (Monday to Sunday)
-        var items = selectedRecipes
-            .Take(7)
+        var capped = selectedRecipes.Take(7).ToList();
+        var items = capped
             .Select((entry, index) => new MealPlanItem
             {
                 RecipeId = entry.recipe.Id,
@@ -103,6 +125,13 @@ public class MealPlanService : IMealPlanService
                 MealType = MealType.Dinner
             })
             .ToList();
+
+        // Step 4: Stamp LastCookedDate so the next generation scores these recipes lower
+        for (int i = 0; i < capped.Count; i++)
+        {
+            capped[i].recipe.LastPlannedDate = dto.WeekStartDate.AddDays(i);
+            await _recipeRepository.UpdateAsync(capped[i].recipe);
+        }
 
         var mealPlan = new MealPlan
         {
@@ -174,12 +203,16 @@ public class MealPlanService : IMealPlanService
     /// </summary>
     private static double CalculateScore(Recipe recipe)
     {
-        var daysSince = (DateTime.UtcNow - (recipe.LastCookedDate ?? DateTime.MinValue)).Days;
+        var lastActivity = recipe.LastPlannedDate.HasValue && recipe.LastCookedDate.HasValue
+            ? (recipe.LastPlannedDate > recipe.LastCookedDate ? recipe.LastPlannedDate : recipe.LastCookedDate)
+            : (recipe.LastPlannedDate ?? recipe.LastCookedDate);
+
+        var daysSince = (DateTime.UtcNow - (lastActivity ?? DateTime.MinValue)).Days;
         var recencyScore = Math.Min(daysSince / 14.0, 1.0);
 
         var popularityScore = recipe.CookCount > 0
             ? Math.Min(recipe.CookCount / 10.0, 0.5)
-            : 0.25; // give new recipes a fair chance
+            : 0.25;
 
         return recencyScore + popularityScore;
     }

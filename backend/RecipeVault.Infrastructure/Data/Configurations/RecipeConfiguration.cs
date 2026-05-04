@@ -26,7 +26,7 @@ public class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
         builder.Property(r => r.CreatedAt)
             .HasDefaultValueSql("NOW()");
 
-        builder.HasIndex(r => new { r.UserId, r.LastCookedDate })
+        builder.HasIndex(r => new { r.UserId, r.LastCookedDate, r.LastPlannedDate })
             .HasDatabaseName("IX_Recipes_Rotation");
 
         builder.HasOne(r => r.User)

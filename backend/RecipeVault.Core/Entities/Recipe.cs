@@ -10,6 +10,7 @@ public class Recipe
     public int PrepTimeMinutes { get; set; }
     public int CookTimeMinutes { get; set; }
     public DateTime? LastCookedDate { get; set; }
+    public DateTime? LastPlannedDate { get; set; }
     public int CookCount { get; set; }
     public string? Instructions { get; set; }
     public string? ImageUrl { get; set; }

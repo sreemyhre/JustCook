@@ -72,13 +72,13 @@ public class TagServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenTagExists_ShouldReturnTagDto()
     {
-        var tag = new Tag { Id = 1, Name = "Vegan" };
+        var tag = new Tag { Id = 1, Name = "Vegan", UserId = 1 };
         var expected = new TagDto { Id = 1, Name = "Vegan" };
 
-        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(tag);
+        _mockRepo.Setup(r => r.GetByIdAsync(1, 1)).ReturnsAsync(tag);
         _mockMapper.Setup(m => m.Map<TagDto>(tag)).Returns(expected);
 
-        var result = await _service.GetByIdAsync(1);
+        var result = await _service.GetByIdAsync(1, 1);
 
         Assert.NotNull(result);
         Assert.Equal(expected, result);
@@ -87,23 +87,23 @@ public class TagServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenTagNotFound_ShouldReturnNull()
     {
-        _mockRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Tag?)null);
+        _mockRepo.Setup(r => r.GetByIdAsync(999, 1)).ReturnsAsync((Tag?)null);
 
-        var result = await _service.GetByIdAsync(999);
+        var result = await _service.GetByIdAsync(999, 1);
 
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task GetAllAsync_ShouldReturnMappedTags()
+    public async Task GetAllByUserIdAsync_ShouldReturnMappedTags()
     {
-        var tags = new List<Tag> { new() { Id = 1, Name = "Vegan" } };
+        var tags = new List<Tag> { new() { Id = 1, Name = "Vegan", UserId = 1 } };
         var expected = new List<TagDto> { new() { Id = 1, Name = "Vegan" } };
 
-        _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(tags);
+        _mockRepo.Setup(r => r.GetAllByUserIdAsync(1)).ReturnsAsync(tags);
         _mockMapper.Setup(m => m.Map<IEnumerable<TagDto>>(tags)).Returns(expected);
 
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllByUserIdAsync(1);
 
         Assert.Equal(expected, result);
     }
@@ -111,14 +111,14 @@ public class TagServiceTests
     [Fact]
     public async Task UpdateTagAsync_WhenTagExists_ShouldReturnUpdatedDto()
     {
-        var tag = new Tag { Id = 1, Name = "Vegan" };
+        var tag = new Tag { Id = 1, Name = "Vegan", UserId = 1 };
         var dto = new UpdateTagDto { Name = "Plant-Based" };
         var expected = new TagDto { Id = 1, Name = "Plant-Based" };
 
-        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(tag);
+        _mockRepo.Setup(r => r.GetByIdAsync(1, 1)).ReturnsAsync(tag);
         _mockMapper.Setup(m => m.Map<TagDto>(tag)).Returns(expected);
 
-        var result = await _service.UpdateTagAsync(1, dto);
+        var result = await _service.UpdateTagAsync(1, 1, dto);
 
         Assert.NotNull(result);
         Assert.Equal(expected, result);
@@ -128,9 +128,9 @@ public class TagServiceTests
     [Fact]
     public async Task UpdateTagAsync_WhenTagNotFound_ShouldReturnNull()
     {
-        _mockRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Tag?)null);
+        _mockRepo.Setup(r => r.GetByIdAsync(999, 1)).ReturnsAsync((Tag?)null);
 
-        var result = await _service.UpdateTagAsync(999, new UpdateTagDto());
+        var result = await _service.UpdateTagAsync(999, 1, new UpdateTagDto());
 
         Assert.Null(result);
     }
@@ -138,9 +138,9 @@ public class TagServiceTests
     [Fact]
     public async Task DeleteTagAsync_ShouldReturnRepoResult()
     {
-        _mockRepo.Setup(r => r.DeleteAsync(1)).ReturnsAsync(true);
+        _mockRepo.Setup(r => r.DeleteAsync(1, 1)).ReturnsAsync(true);
 
-        var result = await _service.DeleteTagAsync(1);
+        var result = await _service.DeleteTagAsync(1, 1);
 
         Assert.True(result);
     }
@@ -171,10 +171,10 @@ public class TagServiceTests
         var recipes = new List<Recipe> { new() { Id = 1, Name = "Salad", UserId = 1 } };
         var expected = new List<RecipeDto> { new() { Id = 1, Name = "Salad", UserId = 1 } };
 
-        _mockRepo.Setup(r => r.GetRecipesByTagIdAsync(1)).ReturnsAsync(recipes);
+        _mockRepo.Setup(r => r.GetRecipesByTagIdAsync(1, 1)).ReturnsAsync(recipes);
         _mockMapper.Setup(m => m.Map<IEnumerable<RecipeDto>>(recipes)).Returns(expected);
 
-        var result = await _service.GetRecipesByTagAsync(1);
+        var result = await _service.GetRecipesByTagAsync(1, 1);
 
         Assert.Equal(expected, result);
     }
