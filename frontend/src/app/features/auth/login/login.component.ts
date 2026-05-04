@@ -26,20 +26,4 @@ export class LoginComponent {
       this.toast.error(err?.message ?? 'Google sign-in failed. Please try again.');
     }
   }
-
-  async loginWithApple(): Promise<void> {
-    try {
-      await this.authService.loginWithApple();
-    } catch (err: any) {
-      this.toast.error(err?.message ?? 'Apple sign-in failed. Please try again.');
-    }
-  }
-
-  async loginWithFacebook(): Promise<void> {
-    try {
-      await this.authService.loginWithFacebook();
-    } catch (err: any) {
-      this.toast.error(err?.message ?? 'Facebook sign-in failed. Please try again.');
-    }
-  }
 }

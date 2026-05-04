@@ -1,67 +1,39 @@
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-text">
-      <h1 class="hero-title">Your Family Recipes.<br>Planned Your Way.</h1>
-      <p class="hero-sub">
-        A meal planner built for the 20–30 dishes you actually cook —
-        not endless discovery.
-      </p>
-      <div class="hero-actions">
-        <a routerLink="/app" class="btn-cta">Get Started</a>
-        <a routerLink="/about" class="btn-cta-outline">Learn More</a>
-      </div>
-    </div>
-    <div class="hero-preview" aria-hidden="true">
-      <div class="preview-card card">
-        <div class="preview-row">
-          <span class="preview-name">Sambar</span>
-          <span class="badge-accent preview-badge">Today</span>
-        </div>
-        <div class="preview-meta">30 min · 4 servings</div>
-        <div class="preview-tags">
-          <span class="tag-chip">Vegetarian</span>
-          <span class="tag-chip">Quick</span>
-        </div>
-      </div>
-      <div class="preview-card card preview-card-back">
-        <div class="preview-row">
-          <span class="preview-name">Chole Bhature</span>
-          <span class="badge-grey preview-badge">3 days ago</span>
-        </div>
-        <div class="preview-meta">45 min · 4 servings</div>
-        <div class="preview-tags">
-          <span class="tag-chip">Weekend</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- Features -->
 <section class="features">
-  <h2 class="features-title">Everything you need. Nothing you don't.</h2>
-  <div class="features-grid">
-    <div class="card feature-card">
-      <span class="feature-icon material-icons">restaurant_menu</span>
-      <h3>Your Recipe Vault</h3>
-      <p>Store every family recipe with ingredients, cook times, and tags. Your collection, not a database.</p>
+  <h2 class="features-title">Preview the app before you login</h2>
+  <div class="carousel">
+    <div class="carousel-card card">
+      <div class="carousel-video">
+        <video
+          [src]="activeSlide.video"
+          muted
+          autoplay
+          loop
+          playsinline
+        ></video>
+      </div>
+      <div class="carousel-copy">
+        <span class="carousel-badge">In-app preview</span>
+        <h3>{{ activeSlide.title }}</h3>
+        <p>{{ activeSlide.description }}</p>
+      </div>
     </div>
-    <div class="card feature-card">
-      <span class="feature-icon material-icons">calendar_today</span>
-      <h3>Smart Weekly Planner</h3>
-      <p>Generate a full week of meals based on tags and preferences. One click and your week is done.</p>
-    </div>
-    <div class="card feature-card">
-      <span class="feature-icon material-icons">check_circle</span>
-      <h3>Track What You Cook</h3>
-      <p>Log every cook session. See when you last made a dish so your family always gets variety.</p>
+
+    <div class="carousel-dots">
+      <button
+        *ngFor="let slide of slides; let i = index"
+        type="button"
+        class="carousel-dot"
+        [class.active]="i === currentIndex"
+        (click)="goToSlide(i)"
+        [attr.aria-label]="'Go to ' + slide.title"
+      ></button>
     </div>
   </div>
 </section>
 
 <!-- Bottom CTA -->
 <section class="cta-banner">
-  <p class="cta-text">Ready to bring order to your kitchen?</p>
-  <a routerLink="/app" class="btn-cta">Start Cooking</a>
+  <p class="cta-text">Ready to unlock your kitchen workflow? Login with Google to get started.</p>
+  <a routerLink="/login" class="btn-cta">Login with Google</a>
 </section>
