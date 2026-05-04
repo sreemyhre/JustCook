@@ -156,36 +156,126 @@
   margin: 0 0 48px;
 }
 
-.features-grid {
-  max-width: 1100px;
+.carousel {
+  max-width: 1080px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.carousel-card {
+  display: grid;
   gap: 24px;
+  padding: 0;
 }
 
-.feature-card {
+.carousel-video {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #000;
+  box-shadow: 0 24px 60px rgba(12, 14, 21, 0.12);
+}
+
+.carousel-video video {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-copy {
   text-align: center;
-  padding: 36px 28px;
-
-  h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 16px 0 10px;
-  }
-
-  p {
-    font-size: 0.93rem;
-    color: #555;
-    line-height: 1.65;
-    margin: 0;
-  }
 }
 
-.feature-icon {
-  font-size: 2.4rem;
+.carousel-badge {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.carousel-copy h3 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 14px;
+  color: var(--primary);
+}
+
+.carousel-copy p {
+  max-width: 720px;
+  margin: 0 auto;
+  color: #555;
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.carousel-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.carousel-arrow:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.carousel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.carousel-dot.active {
+  background: var(--accent);
+  transform: scale(1.15);
+}
+
+@media (min-width: 900px) {
+  .carousel-card {
+    grid-template-columns: 1.3fr 0.9fr;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .carousel-copy {
+    text-align: left;
+  }
+
+  .carousel-video video {
+    min-height: 380px;
+  }
 }
 
 /* ── Bottom CTA ── */
