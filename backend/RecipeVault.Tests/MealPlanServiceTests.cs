@@ -12,14 +12,16 @@ namespace RecipeVault.Tests;
 public class MealPlanServiceTests
 {
     private readonly Mock<IMealPlanRepository> _mockRepo;
+    private readonly Mock<IRecipeRepository> _mockRecipeRepo;
     private readonly Mock<IMapper> _mockMapper;
     private readonly MealPlanService _service;
 
     public MealPlanServiceTests()
     {
         _mockRepo = new Mock<IMealPlanRepository>();
+        _mockRecipeRepo = new Mock<IRecipeRepository>();
         _mockMapper = new Mock<IMapper>();
-        _service = new MealPlanService(_mockRepo.Object, _mockMapper.Object);
+        _service = new MealPlanService(_mockRepo.Object, _mockRecipeRepo.Object, _mockMapper.Object);
     }
 
     [Fact]
@@ -155,6 +157,9 @@ public class MealPlanServiceTests
         var result = await _service.GenerateMealPlanAsync(dto);
 
         _mockRepo.Verify(r => r.AddAsync(It.Is<MealPlan>(p => p.Items.Count == 7)), Times.Once);
+        _mockRecipeRepo.Verify(
+            r => r.UpdateAsync(It.Is<Recipe>(rec => rec.LastPlannedDate.HasValue)),
+            Times.Exactly(7));
         Assert.Equal(expected, result);
     }
 
@@ -195,5 +200,95 @@ public class MealPlanServiceTests
             p.Items.Any(i => i.RecipeId == 1) &&
             p.Items.Any(i => i.RecipeId == 2)
         )), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateMealPlanAsync_RemovedRecipe_ShouldClearLastPlannedDate()
+    {
+        var removedRecipe = new Recipe { Id = 10, LastPlannedDate = DateTime.UtcNow.AddDays(-1) };
+        var mealPlan = new MealPlan
+        {
+            Id = 1, UserId = 1, WeekStartDate = DateTime.Today,
+            Items = new List<MealPlanItem>
+            {
+                new() { RecipeId = 10, DayOfWeek = DayOfWeekEnum.Monday, Recipe = removedRecipe }
+            }
+        };
+        var dto = new CreateMealPlanDto
+        {
+            UserId = 1, WeekStartDate = DateTime.Today,
+            Items = new List<CreateMealPlanItemDto>
+            {
+                new() { RecipeId = 20, DayOfWeek = DayOfWeekEnum.Monday }
+            }
+        };
+        var newRecipe = new Recipe { Id = 20 };
+
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(mealPlan);
+        _mockRecipeRepo.Setup(r => r.GetByIdAsync(10)).ReturnsAsync(removedRecipe);
+        _mockRecipeRepo.Setup(r => r.GetByIdAsync(20)).ReturnsAsync(newRecipe);
+
+        await _service.UpdateMealPlanAsync(1, dto);
+
+        _mockRecipeRepo.Verify(
+            r => r.UpdateAsync(It.Is<Recipe>(rec => rec.Id == 10 && rec.LastPlannedDate == null)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateMealPlanAsync_AddedRecipe_ShouldStampLastPlannedDate()
+    {
+        var mealPlan = new MealPlan
+        {
+            Id = 1, UserId = 1, WeekStartDate = DateTime.Today,
+            Items = new List<MealPlanItem>()
+        };
+        var dto = new CreateMealPlanDto
+        {
+            UserId = 1, WeekStartDate = DateTime.Today,
+            Items = new List<CreateMealPlanItemDto>
+            {
+                new() { RecipeId = 5, DayOfWeek = DayOfWeekEnum.Wednesday }
+            }
+        };
+        var newRecipe = new Recipe { Id = 5 };
+
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(mealPlan);
+        _mockRecipeRepo.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(newRecipe);
+
+        await _service.UpdateMealPlanAsync(1, dto);
+
+        var expectedDate = DateTime.Today.AddDays((int)DayOfWeekEnum.Wednesday);
+        _mockRecipeRepo.Verify(
+            r => r.UpdateAsync(It.Is<Recipe>(rec => rec.Id == 5 && rec.LastPlannedDate == expectedDate)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateMealPlanAsync_UnchangedRecipe_ShouldNotUpdateLastPlannedDate()
+    {
+        var existingRecipe = new Recipe { Id = 7, LastPlannedDate = DateTime.Today.AddDays(-7) };
+        var mealPlan = new MealPlan
+        {
+            Id = 1, UserId = 1, WeekStartDate = DateTime.Today,
+            Items = new List<MealPlanItem>
+            {
+                new() { RecipeId = 7, DayOfWeek = DayOfWeekEnum.Friday, Recipe = existingRecipe }
+            }
+        };
+        var dto = new CreateMealPlanDto
+        {
+            UserId = 1, WeekStartDate = DateTime.Today,
+            Items = new List<CreateMealPlanItemDto>
+            {
+                new() { RecipeId = 7, DayOfWeek = DayOfWeekEnum.Friday }
+            }
+        };
+
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(mealPlan);
+
+        await _service.UpdateMealPlanAsync(1, dto);
+
+        _mockRecipeRepo.Verify(r => r.UpdateAsync(It.Is<Recipe>(rec => rec.Id == 7)), Times.Never);
     }
 }

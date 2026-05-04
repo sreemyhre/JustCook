@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RecipeVault.API.Controllers;
@@ -16,6 +18,15 @@ public class TagsControllerTests
     {
         _mockService = new Mock<ITagService>();
         _controller = new TagsController(_mockService.Object);
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim("sub", "1")
+        }, "TestAuth"));
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
     }
 
     [Fact]
@@ -24,7 +35,7 @@ public class TagsControllerTests
         var dto = new CreateTagDto { Name = "Vegan" };
         var tagDto = new TagDto { Id = 1, Name = "Vegan" };
 
-        _mockService.Setup(s => s.CreateTagAsync(dto)).ReturnsAsync(tagDto);
+        _mockService.Setup(s => s.CreateTagAsync(It.IsAny<CreateTagDto>())).ReturnsAsync(tagDto);
 
         var result = await _controller.CreateTag(dto);
 
@@ -38,7 +49,7 @@ public class TagsControllerTests
     {
         var tagDto = new TagDto { Id = 1, Name = "Vegan" };
 
-        _mockService.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(tagDto);
+        _mockService.Setup(s => s.GetByIdAsync(1, 1)).ReturnsAsync(tagDto);
 
         var result = await _controller.GetTag(1);
 
@@ -50,7 +61,7 @@ public class TagsControllerTests
     [Fact]
     public async Task GetTag_WhenTagNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.GetByIdAsync(999)).ReturnsAsync((TagDto?)null);
+        _mockService.Setup(s => s.GetByIdAsync(999, 1)).ReturnsAsync((TagDto?)null);
 
         var result = await _controller.GetTag(999);
 
@@ -61,7 +72,7 @@ public class TagsControllerTests
     public async Task GetAllTags_ShouldReturnOkWithTags()
     {
         var tags = new List<TagDto> { new() { Id = 1, Name = "Vegan" } };
-        _mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(tags);
+        _mockService.Setup(s => s.GetAllByUserIdAsync(1)).ReturnsAsync(tags);
 
         var result = await _controller.GetAllTags();
 
@@ -74,7 +85,7 @@ public class TagsControllerTests
     {
         var dto = new UpdateTagDto { Name = "Plant-Based" };
         var tagDto = new TagDto { Id = 1, Name = "Plant-Based" };
-        _mockService.Setup(s => s.UpdateTagAsync(1, dto)).ReturnsAsync(tagDto);
+        _mockService.Setup(s => s.UpdateTagAsync(1, 1, dto)).ReturnsAsync(tagDto);
 
         var result = await _controller.UpdateTag(1, dto);
 
@@ -85,7 +96,7 @@ public class TagsControllerTests
     [Fact]
     public async Task UpdateTag_WhenTagNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.UpdateTagAsync(999, It.IsAny<UpdateTagDto>())).ReturnsAsync((TagDto?)null);
+        _mockService.Setup(s => s.UpdateTagAsync(999, 1, It.IsAny<UpdateTagDto>())).ReturnsAsync((TagDto?)null);
 
         var result = await _controller.UpdateTag(999, new UpdateTagDto());
 
@@ -95,7 +106,7 @@ public class TagsControllerTests
     [Fact]
     public async Task DeleteTag_WhenDeleted_ShouldReturnNoContent()
     {
-        _mockService.Setup(s => s.DeleteTagAsync(1)).ReturnsAsync(true);
+        _mockService.Setup(s => s.DeleteTagAsync(1, 1)).ReturnsAsync(true);
 
         var result = await _controller.DeleteTag(1);
 
@@ -105,7 +116,7 @@ public class TagsControllerTests
     [Fact]
     public async Task DeleteTag_WhenNotFound_ShouldReturnNotFound()
     {
-        _mockService.Setup(s => s.DeleteTagAsync(999)).ReturnsAsync(false);
+        _mockService.Setup(s => s.DeleteTagAsync(999, 1)).ReturnsAsync(false);
 
         var result = await _controller.DeleteTag(999);
 
@@ -156,7 +167,7 @@ public class TagsControllerTests
     public async Task GetRecipesByTag_ShouldReturnOkWithRecipes()
     {
         var recipes = new List<RecipeDto> { new() { Id = 1, Name = "Salad" } };
-        _mockService.Setup(s => s.GetRecipesByTagAsync(1)).ReturnsAsync(recipes);
+        _mockService.Setup(s => s.GetRecipesByTagAsync(1, 1)).ReturnsAsync(recipes);
 
         var result = await _controller.GetRecipesByTag(1);
 

@@ -57,11 +57,12 @@ public class RecipeServiceTests
     public async Task CreateRecipeAsync_ShouldReturnMappedRecipeDto()
     {
         var dto = new CreateRecipeDto { Name = "Pasta", UserId = 1 };
-        var recipe = new Recipe { Name = "Pasta", UserId = 1 };
+        var recipe = new Recipe { Id = 1, Name = "Pasta", UserId = 1 };
         var expected = new RecipeDto { Id = 1, Name = "Pasta", UserId = 1 };
 
         _mockMapper.Setup(m => m.Map<Recipe>(dto)).Returns(recipe);
         _mockRepo.Setup(r => r.AddAsync(recipe)).ReturnsAsync(recipe);
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
         _mockMapper.Setup(m => m.Map<RecipeDto>(recipe)).Returns(expected);
 
         var result = await _service.CreateRecipeAsync(dto);
@@ -78,7 +79,7 @@ public class RecipeServiceTests
         _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
         _mockMapper.Setup(m => m.Map<RecipeDto>(recipe)).Returns(expected);
 
-        var result = await _service.GetByIdAsync(1);
+        var result = await _service.GetByIdAsync(1, 1);
 
         Assert.NotNull(result);
         Assert.Equal(expected, result);
@@ -89,7 +90,18 @@ public class RecipeServiceTests
     {
         _mockRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Recipe?)null);
 
-        var result = await _service.GetByIdAsync(999);
+        var result = await _service.GetByIdAsync(999, 1);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenWrongUser_ShouldReturnNull()
+    {
+        var recipe = new Recipe { Id = 1, Name = "Pasta", UserId = 2 };
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
+
+        var result = await _service.GetByIdAsync(1, 1);
 
         Assert.Null(result);
     }
@@ -118,7 +130,7 @@ public class RecipeServiceTests
         _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
         _mockMapper.Setup(m => m.Map<RecipeDto>(recipe)).Returns(expected);
 
-        var result = await _service.UpdateRecipeAsync(1, dto);
+        var result = await _service.UpdateRecipeAsync(1, 1, dto);
 
         Assert.NotNull(result);
         Assert.Equal(expected, result);
@@ -130,19 +142,32 @@ public class RecipeServiceTests
     {
         _mockRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Recipe?)null);
 
-        var result = await _service.UpdateRecipeAsync(999, new UpdateRecipeDto());
+        var result = await _service.UpdateRecipeAsync(999, 1, new UpdateRecipeDto());
 
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task DeleteRecipeAsync_ShouldReturnRepoResult()
+    public async Task DeleteRecipeAsync_WhenOwned_ShouldReturnTrue()
     {
+        var recipe = new Recipe { Id = 1, UserId = 1 };
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
         _mockRepo.Setup(r => r.DeleteAsync(1)).ReturnsAsync(true);
 
-        var result = await _service.DeleteRecipeAsync(1);
+        var result = await _service.DeleteRecipeAsync(1, 1);
 
         Assert.True(result);
+    }
+
+    [Fact]
+    public async Task DeleteRecipeAsync_WhenNotOwned_ShouldReturnFalse()
+    {
+        var recipe = new Recipe { Id = 1, UserId = 2 };
+        _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
+
+        var result = await _service.DeleteRecipeAsync(1, 1);
+
+        Assert.False(result);
     }
 
     [Fact]
@@ -162,13 +187,13 @@ public class RecipeServiceTests
     [Fact]
     public async Task LogCookAsync_WhenRecipeExists_ShouldIncrementAndReturnDto()
     {
-        var recipe = new Recipe { Id = 1, Name = "Pasta", CookCount = 2, LastCookedDate = null };
+        var recipe = new Recipe { Id = 1, Name = "Pasta", UserId = 1, CookCount = 2, LastCookedDate = null };
         var expected = new RecipeDto { Id = 1, Name = "Pasta", CookCount = 3 };
 
         _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
         _mockMapper.Setup(m => m.Map<RecipeDto>(recipe)).Returns(expected);
 
-        var result = await _service.LogCookAsync(1);
+        var result = await _service.LogCookAsync(1, 1);
 
         Assert.NotNull(result);
         Assert.Equal(3, recipe.CookCount);
@@ -181,7 +206,7 @@ public class RecipeServiceTests
     {
         _mockRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Recipe?)null);
 
-        var result = await _service.LogCookAsync(999);
+        var result = await _service.LogCookAsync(999, 1);
 
         Assert.Null(result);
     }
@@ -212,7 +237,7 @@ public class RecipeServiceTests
         _mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(recipe);
         _mockMapper.Setup(m => m.Map<RecipeDto>(recipe)).Returns(expected);
 
-        await _service.UpdateRecipeAsync(1, dto);
+        await _service.UpdateRecipeAsync(1, 1, dto);
 
         Assert.Empty(recipe.Ingredients);
         _mockRepo.Verify(r => r.UpdateAsync(recipe), Times.Once);
