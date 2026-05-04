@@ -15,7 +15,7 @@ public class SeedDataService
 
     public async Task SeedForNewUserAsync(int userId)
     {
-        var tagIds = await EnsureTagsAsync(
+        var tagIds = await EnsureTagsAsync(userId,
             "Italian", "Asian", "Mediterranean", "Mexican",
             "Breakfast", "Vegetarian", "Vegan", "Seafood",
             "Quick", "Healthy", "High Protein", "Gluten-Free", "Comfort Food"
@@ -342,16 +342,16 @@ public class SeedDataService
         await _db.SaveChangesAsync();
     }
 
-    private async Task<Dictionary<string, int>> EnsureTagsAsync(params string[] names)
+    private async Task<Dictionary<string, int>> EnsureTagsAsync(int userId, params string[] names)
     {
         var result = new Dictionary<string, int>();
 
         foreach (var name in names)
         {
-            var tag = await _db.Tags.FirstOrDefaultAsync(t => t.Name == name);
+            var tag = await _db.Tags.FirstOrDefaultAsync(t => t.UserId == userId && t.Name == name);
             if (tag == null)
             {
-                tag = new Tag { Name = name };
+                tag = new Tag { UserId = userId, Name = name };
                 _db.Tags.Add(tag);
                 await _db.SaveChangesAsync();
             }
